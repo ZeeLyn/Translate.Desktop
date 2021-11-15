@@ -4,7 +4,7 @@ const __baidu_translate_appid = "20211114000998654";
 const __baidu_translate_key = "0gPJopPB9IlfqAb1cS8k";
 import request from "@g1100100/rest.request"
 
-export function BaiduTranslate(query, from, to, callback) {
+export function BaiduTranslate(query, from, to, callback, _err, _finally) {
     var salt = (new Date).getTime();
     var sign_source = `${__baidu_translate_appid}${query}${salt}${__baidu_translate_key}`;
     request.get("http://api.fanyi.baidu.com/api/trans/vip/translate", {
@@ -20,5 +20,9 @@ export function BaiduTranslate(query, from, to, callback) {
         }
     }).then(res => {
         callback({ result: res.data.trans_result });
+    }).catch(err => {
+        if (_err) _err(err);
+    }).finally(() => {
+        if (_finally) _finally();
     });
 }

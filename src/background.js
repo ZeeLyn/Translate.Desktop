@@ -19,6 +19,8 @@ async function createWindow() {
         height: 1000,
         minWidth: 800,
         minHeight: 600,
+        show: false,
+        skipTaskbar: true,
         icon: nativeImage.createFromPath(isDevelopment ? path.join("./public", "app.png") : path.join(cwd, "app.asar/app.png")),
         webPreferences: {
 
@@ -30,7 +32,7 @@ async function createWindow() {
         },
         darkTheme: true,
         //alwaysOnTop: true,
-        frame: false,
+        frame: true,
     })
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -70,6 +72,17 @@ app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
+async function SwitchWindow() {
+
+    if (mainWindow.isVisible()) {
+        mainWindow.hide();
+        mainWindow.setSkipTaskbar(true);
+    } else {
+        mainWindow.show();
+        mainWindow.setSkipTaskbar(false);
+        mainWindow.webContents.send("OnWindowFocus");
+    }
+}
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -85,8 +98,13 @@ app.on('ready', async() => {
     createWindow()
     const cwd = isDevelopment ? null : path.join(__dirname, '..');
     appTray = new Tray(isDevelopment ? path.join("./public", "app.png") : path.join(cwd, "app.asar/app.png"));
-    appTray.setToolTip("局域网剪切板分享");
+    appTray.setToolTip("集成翻译");
     let trayMenuTemplate = [{
+        label: '显示/隐藏窗口(Ctrl/Command+`)',
+        click: function() {
+            SwitchWindow();
+        }
+    }, {
         label: '退出',
         click: function() {
             app.exit();
@@ -95,18 +113,12 @@ app.on('ready', async() => {
     const contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
     appTray.setContextMenu(contextMenu);
     // 单机托盘小图标显示应用
-    appTray.on('click', function() {
+    appTray.on('double-click', function() {
         mainWindow.show();
         mainWindow.setSkipTaskbar(false);
     });
-    globalShortcut.register('CommandOrControl+~', function() {
-        if (mainWindow.isVisible()) {
-            mainWindow.hide();
-            mainWindow.setSkipTaskbar(true);
-        } else {
-            mainWindow.show();
-            mainWindow.setSkipTaskbar(false);
-        }
+    globalShortcut.register('CommandOrControl+`', function() {
+        SwitchWindow();
     });
 })
 

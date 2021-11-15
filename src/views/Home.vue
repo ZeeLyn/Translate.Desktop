@@ -14,10 +14,6 @@
                     <select v-model="to">
                         <option v-for="item in language" :key="item.code" :value="item.code" :label="item.name" :checked="item.code == to"></option>
                     </select>
-                    <!-- <template v-for="item in language" :key="item.code">
-                        <input class="selectopt" name="language" type="radio" :id="'opt_' + item.code" :value="item.code" :checked="item.code == to" v-model="to" />
-                        <label :for="'opt_' + item.code" class="option">{{ item.name }}</label>
-                    </template> -->
                 </div>
 
                 <div class="split">|</div>
@@ -27,7 +23,7 @@
         </div>
         <div class="wrap">
             <div class="from">
-                <textarea rows="20" v-model="query" @input="InputHandle" ref="query"></textarea>
+                <textarea rows="20" v-model="query" @input="InputHandle" ref="query" autofocus></textarea>
             </div>
             <div class="providers radio-custom">
                 <div>
@@ -69,6 +65,7 @@
                 </div>
             </div>
         </div>
+        <Toast ref="toast"></Toast>
     </div>
 </template>
 
@@ -77,9 +74,10 @@ import lan from "../utils/lan.js";
 import { BaiduTranslate } from "../utils/baidu.js";
 import { GoogleTranslate } from "../utils/google.js";
 const { ipcRenderer, clipboard } = require("electron");
+import Toast from "../components/Toast.vue";
 export default {
     name: "Home",
-    components: {},
+    components: { Toast },
     watch: {
         provider: function (val) {
             this.TranslateHandle();
@@ -115,54 +113,41 @@ export default {
 
         var self = this;
         ipcRenderer.on("OnWindowFocus", () => {
+            console.warn("OnWindowFocus");
             self.$nextTick(() => {
-                if (!self.$refs["query"]) return;
+                if (!self.$refs["query"]) {
+                    console.warn("refs query is null");
+                    return;
+                }
                 self.$refs["query"].select();
                 self.$refs["query"].focus();
             });
         });
     },
     methods: {
+        SuccessCallback(res) {
+            this.trans_result = res;
+        },
+        FailCallback(err) {
+            console.error(err);
+            this.$refs["toast"].showToast(err);
+        },
+        FinallyCallback() {
+            this.loading = false;
+        },
         TranslateHandle() {
             if (!this.query) {
                 this.trans_result = {};
                 this.loading = false;
                 return;
             }
-            var self = this;
             this.loading = true;
             switch (this.provider) {
                 case "baidu":
-                    BaiduTranslate(
-                        this.query,
-                        this.from,
-                        this.to,
-                        (res) => {
-                            self.trans_result = res;
-                        },
-                        (err) => {
-                            console.error(err);
-                        },
-                        () => {
-                            self.loading = false;
-                        }
-                    );
+                    BaiduTranslate(this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
                     break;
                 case "google":
-                    GoogleTranslate(
-                        this.query,
-                        this.from,
-                        this.to,
-                        (res) => {
-                            this.trans_result = res;
-                        },
-                        (err) => {
-                            console.error(err);
-                        },
-                        () => {
-                            self.loading = false;
-                        }
-                    );
+                    GoogleTranslate(this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
                     break;
             }
         },
