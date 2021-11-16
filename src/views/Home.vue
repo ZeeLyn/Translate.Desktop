@@ -36,24 +36,29 @@
 
             <div class="to">
                 <div class="trans_wrap">
-                    <template v-if="trans_result.result">
-                        <div class="item" v-for="(item, idx) in trans_result.result" :key="idx">
-                            <div class="src">{{ item.src }}</div>
-                            <div class="dst" title="点击复制" @click="ClickTransItemHandle">{{ item.dst }}</div>
-                        </div>
-                    </template>
-                    <div v-if="trans_result.rec" class="rec">
-                        <div v-for="item in trans_result.rec" :key="item.atrr">
-                            <h4>{{ item.attr }}</h4>
-                            <ul>
-                                <li v-for="r in item.items" :key="r.src">
-                                    <div class="info">
-                                        <div @click="ClickTransItemHandle">{{ r.src }}</div>
-                                        <span v-for="(k, idx) in r.trans" :key="k">{{ idx > 0 ? "，" : "" }}{{ k }}</span>
-                                    </div>
-                                    <div class="rate">{{ r.rate }}</div>
-                                </li>
-                            </ul>
+                    <div class="socll">
+                        <template v-if="trans_result.result">
+                            <div class="item" v-for="(item, idx) in trans_result.result" :key="idx">
+                                <div class="src">{{ item.src }}</div>
+                                <div class="dst" title="点击复制" @click="ClickTransItemHandle">{{ item.dst }}</div>
+                            </div>
+                        </template>
+                        <div v-if="trans_result.rec" class="rec">
+                            <div v-for="item in trans_result.rec" :key="item.atrr">
+                                <h4>{{ item.attr }}</h4>
+                                <ul>
+                                    <li v-for="r in item.items" :key="r.src">
+                                        <div class="info">
+                                            <div @click="ClickTransItemHandle">{{ r.src }}</div>
+                                            <template v-for="(k, idx) in r.trans" :key="k">
+                                                {{ idx > 0 ? " ," : "" }}
+                                                <span>{{ k }}</span>
+                                            </template>
+                                        </div>
+                                        <!-- <div class="rate">{{ r.rate }}</div> -->
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -110,10 +115,9 @@ export default {
         this.to = localStorage.getItem("target-language") || "en";
         this.provider = localStorage.getItem("translate-provider") || "baidu";
         this.alwaysOnTop = localStorage.getItem("always-on-top") == "true";
-
+        ipcRenderer.send("SetAlwaysOnTop", this.alwaysOnTop);
         var self = this;
         ipcRenderer.on("OnWindowFocus", () => {
-            console.warn("OnWindowFocus");
             self.$nextTick(() => {
                 if (!self.$refs["query"]) {
                     console.warn("refs query is null");
@@ -213,7 +217,9 @@ export default {
 }
 .rec h4 {
     color: rgb(89, 255, 227);
-    margin-top: 20px;
+    margin-top: 25px;
+    font-size: 14px;
+    font-weight: normal;
 }
 .rec ul li .info {
     flex: 1;
@@ -222,6 +228,7 @@ export default {
     margin-right: 15px;
     display: inline-block;
     cursor: pointer;
+    font-size: 14px;
 }
 .rec ul li .info div:hover {
     background: #fff;
@@ -255,7 +262,7 @@ export default {
 }
 .tool-bar .left .logo {
     font-size: 25px;
-    color: #fff;
+    color: #1296db;
     margin: 0 10px;
 }
 .tool-bar .right {
@@ -304,7 +311,6 @@ export default {
 .wrap .to {
     flex: 1;
     display: flex;
-    padding: 15px;
     background: #323336;
     position: relative;
 }
@@ -318,6 +324,7 @@ export default {
     border-left: 1px #404246 solid;
     border-right: 1px #404246 solid;
     flex-shrink: 0;
+    background: #2e3033;
 }
 .wrap .providers div {
     display: flex;
@@ -339,7 +346,7 @@ textarea {
     color: #fff;
     background: none;
     resize: none;
-    font-size: 16px;
+    font-size: 14px;
 }
 .trans_wrap {
     padding: 10px;
@@ -347,17 +354,37 @@ textarea {
     flex: 1;
     border: none;
     text-align: left;
+
+    position: relative;
+}
+.trans_wrap .socll {
+    position: absolute;
+    left: 10px;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    padding: 10px 0;
 }
 .trans_wrap .item {
-    margin: 5px 0;
+    padding: 5px 0;
     display: flex;
 }
+.trans_wrap .item:hover {
+    background: #4c4f53;
+}
 .trans_wrap .item .src {
-    margin-right: 10px;
+    margin-right: 15px;
     flex-shrink: 0;
+    max-width: 45%;
+    word-break: break-all;
+    font-size: 14px;
 }
 .trans_wrap .item .dst {
     cursor: pointer;
+    max-width: 50%;
+    word-break: break-all;
+    font-size: 14px;
 }
 .trans_wrap .item .dst:hover {
     background: #fff;

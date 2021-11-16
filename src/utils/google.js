@@ -62,7 +62,6 @@ export function GoogleTranslate(query, from, to, callback, _err, _finally) {
                 attr: item[0],
                 items: item[1].map((x, idx) => {
                     var trans = item[2][idx];
-                    console.warn(trans);
                     var p = {
                         src: x,
                         trans: trans[1],
