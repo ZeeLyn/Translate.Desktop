@@ -1,4 +1,4 @@
-# web
+# Aggregate translation
 
 ## Project setup
 ```
