@@ -23,7 +23,7 @@
         </div>
         <div class="wrap">
             <div class="from">
-                <textarea rows="20" v-model="query" @input="InputHandle" ref="query" autofocus></textarea>
+                <textarea rows="20" v-model="query" ref="query" autofocus></textarea>
             </div>
             <div class="providers radio-custom">
                 <div>
@@ -127,6 +127,7 @@ export default {
                 self.$refs["query"].focus();
             });
         });
+        this.TimingTranslate();
     },
     methods: {
         SuccessCallback(res) {
@@ -155,17 +156,29 @@ export default {
                     break;
             }
         },
-        InputHandle() {
+
+        // InputHandle() {
+        //     const self = this;
+        //     clearTimeout(this.timer);
+        //     this.LastTimeInput = Date.now();
+        //     this.timer = setTimeout(() => {
+        //         if (Date.now() - self.LastTimeInput > 1000) {
+        //             self.TranslateHandle();
+        //         }
+        //         clearTimeout(self.timer);
+        //     }, 1000);
+        // },
+
+        TimingTranslate() {
             const self = this;
-            clearTimeout(this.timer);
-            this.LastTimeInput = Date.now();
-            this.timer = setTimeout(() => {
-                if (Date.now() - self.LastTimeInput > 1000) {
-                    self.TranslateHandle();
-                }
-                clearTimeout(self.timer);
+            var _query = "";
+            this.timer = setInterval(() => {
+                if (_query == self.query) return;
+                _query = self.query;
+                self.TranslateHandle();
             }, 1000);
         },
+
         GetHistroyLanguage() {
             var histroyLanguage = localStorage.getItem("histroyLanguage");
             if (histroyLanguage) {
@@ -206,6 +219,9 @@ export default {
         },
         CloseHandle() {
             ipcRenderer.send("CloseWindow");
+        },
+        beforeDestroy() {
+            clearInterval(this.timer);
         },
     },
 };
