@@ -13,6 +13,7 @@ protocol.registerSchemesAsPrivileged([
 var mainWindow = null;
 async function createWindow() {
     // Create the browser window.
+    console.log("__dirname::::", __dirname);
     const cwd = isDevelopment ? null : path.join(__dirname, '..');
     const win = mainWindow = new BrowserWindow({
         width: 1000,
@@ -21,7 +22,7 @@ async function createWindow() {
         minHeight: 600,
         show: false,
         skipTaskbar: true,
-        icon: nativeImage.createFromPath(isDevelopment ? path.join("./public", "logo.ico") : path.join(cwd, "app.asar/logo.ico")),
+        icon: nativeImage.createFromPath(isDevelopment ? path.join(__dirname, "bundled", "logo.ico") : path.join(cwd, "app.asar/logo.ico")),
         webPreferences: {
 
             // Use pluginOptions.nodeIntegration, leave this alone
@@ -112,7 +113,7 @@ if (!locker) {
         }
         createWindow()
         const cwd = isDevelopment ? null : path.join(__dirname, '..');
-        appTray = new Tray(isDevelopment ? path.join("./public", "logo.ico") : path.join(cwd, "app.asar/logo.ico"));
+        appTray = new Tray(isDevelopment ? path.join(__dirname, "bundled", "logo.ico") : path.join(cwd, "app.asar/logo.ico"));
         appTray.setToolTip("集成翻译");
         let trayMenuTemplate = [{
             label: '显示/隐藏窗口(Ctrl/Command+`)',
