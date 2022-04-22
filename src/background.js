@@ -46,6 +46,9 @@ async function createWindow() {
         win.loadURL('app://./index.html')
     }
     win.on("close", event => {
+        dialog.showMessageBox(null, {
+            message: "messge"
+        });
         event.preventDefault();
         win.hide();
         win.setSkipTaskbar(true);
@@ -58,9 +61,7 @@ async function createWindow() {
     globalShortcut.register('CommandOrControl+`', function() {
         SwitchWindow();
     });
-    dialog.showMessageBox(null, {
-        message: "messge"
-    })
+
 }
 if (!isDevelopment) {
     // app.setLoginItemSettings({
