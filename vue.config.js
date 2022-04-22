@@ -13,7 +13,7 @@ module.exports = {
                     "icon": "./public/logo.ico"
                 },
                 "mac": {
-                    "icon": "./public/logo.ico"
+                    "icon": "./public/logo.512.ico"
                 },
                 "linux": {
                     "icon": "./public/logo.ico"
