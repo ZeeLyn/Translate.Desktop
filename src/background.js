@@ -21,7 +21,7 @@ async function createWindow() {
         minHeight: 600,
         show: false,
         skipTaskbar: true,
-        icon: nativeImage.createFromPath(isDevelopment ? path.join(__dirname, "..", "public", "logo@64.png") : path.join(cwd, "app.asar/logo@64.png")),
+        icon: nativeImage.createFromPath(isDevelopment ? path.join(__dirname, "..", "public", "logo@3x.png") : path.join(cwd, "app.asar/logo@3x.png")),
         webPreferences: {
 
             // Use pluginOptions.nodeIntegration, leave this alone
@@ -34,7 +34,9 @@ async function createWindow() {
         //alwaysOnTop: true,
         frame: false,
     })
-
+    if (process.platform == 'darwin') {
+        app.dock.hide();
+    }
     if (process.env.WEBPACK_DEV_SERVER_URL) {
         // Load the url of the dev server if in development mode
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
@@ -120,7 +122,7 @@ if (!locker) {
         }
         createWindow()
         const cwd = isDevelopment ? null : path.join(__dirname, '..');
-        appTray = new Tray(isDevelopment ? path.join(__dirname, "..", "public", "logo@64.png") : path.join(cwd, "app.asar/logo@64.png"));
+        appTray = new Tray(isDevelopment ? path.join(__dirname, "..", "public", "logo@3x.png") : path.join(cwd, "app.asar/logo@3x.png"));
         appTray.setToolTip("集成翻译");
         let trayMenuTemplate = [{
             label: '显示/隐藏窗口(Ctrl/Command+`)',
