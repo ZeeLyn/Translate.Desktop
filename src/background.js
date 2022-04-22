@@ -53,6 +53,11 @@ async function createWindow() {
     win.on("focus", async() => {
         win.webContents.send("OnWindowFocus");
     });
+
+    //注册全局快捷键
+    globalShortcut.register('CommandOrControl+`', function() {
+        SwitchWindow();
+    });
 }
 if (!isDevelopment) {
     // app.setLoginItemSettings({
@@ -134,10 +139,7 @@ if (!locker) {
             mainWindow.show();
             mainWindow.setSkipTaskbar(false);
         });
-        //注册全局快捷键
-        globalShortcut.register('CommandOrControl+`', function() {
-            SwitchWindow();
-        });
+
     })
 }
 
