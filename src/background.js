@@ -65,10 +65,10 @@ async function createWindow() {
 
 }
 if (!isDevelopment) {
-    // app.setLoginItemSettings({
-    //     //设置开机启动  
-    //     openAtLogin: true
-    // });
+    app.setLoginItemSettings({
+        //设置开机启动  
+        openAtLogin: true
+    });
 }
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
