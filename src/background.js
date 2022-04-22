@@ -75,7 +75,7 @@ app.on('activate', () => {
 })
 
 async function SwitchWindow() {
-
+    console.log('SwitchWindow');
     if (mainWindow.isVisible()) {
         mainWindow.hide();
         mainWindow.setSkipTaskbar(true);
@@ -122,6 +122,7 @@ if (!locker) {
         }, {
             label: '退出',
             click: function() {
+                app.quit();
                 app.exit();
             }
         }];
