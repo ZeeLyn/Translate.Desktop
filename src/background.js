@@ -47,12 +47,9 @@ async function createWindow() {
         win.loadURL('app://./index.html')
     }
     win.on("close", event => {
-        if (process.platform === 'win32') {
-            event.preventDefault();
-            win.hide();
-            win.setSkipTaskbar(true);
-        } else
-            app.exit();
+        event.preventDefault();
+        win.hide();
+        win.setSkipTaskbar(true);
     });
     win.on("focus", async() => {
         win.webContents.send("OnWindowFocus");
@@ -74,9 +71,9 @@ if (!isDevelopment) {
 app.on('window-all-closed', () => {
     // On macOS it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
-    // if (process.platform !== 'darwin') {
-    //     app.quit()
-    // }
+    if (process.platform !== 'darwin') {
+        app.quit()
+    }
 })
 
 app.on('activate', () => {
