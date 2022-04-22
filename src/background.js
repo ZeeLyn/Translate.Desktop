@@ -1,6 +1,6 @@
 'use strict'
 /*eslint-disable */
-import { app, protocol, BrowserWindow, ipcMain, nativeImage, Tray, Menu, globalShortcut, dialog } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, nativeImage, Tray, Menu, globalShortcut } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 var path = require('path');
@@ -13,7 +13,6 @@ protocol.registerSchemesAsPrivileged([
 var mainWindow = null;
 async function createWindow() {
     // Create the browser window.
-    console.log("__dirname::::", __dirname);
     const cwd = isDevelopment ? null : path.join(__dirname, '..');
     const win = mainWindow = new BrowserWindow({
         width: 1000,
@@ -22,7 +21,7 @@ async function createWindow() {
         minHeight: 600,
         show: false,
         skipTaskbar: true,
-        icon: nativeImage.createFromPath(isDevelopment ? path.join(__dirname, "bundled", "logo.ico") : path.join(cwd, "app.asar/logo.ico")),
+        icon: nativeImage.createFromPath(isDevelopment ? path.join(__dirname, "..", "public", "logo@64.png") : path.join(cwd, "app.asar/logo@64.png")),
         webPreferences: {
 
             // Use pluginOptions.nodeIntegration, leave this alone
@@ -46,9 +45,6 @@ async function createWindow() {
         win.loadURL('app://./index.html')
     }
     win.on("close", event => {
-        dialog.showMessageBox(null, {
-            message: "messge"
-        });
         if (process.platform === 'win32') {
             event.preventDefault();
             win.hide();
@@ -88,7 +84,6 @@ app.on('activate', () => {
 })
 
 async function SwitchWindow() {
-    console.log('SwitchWindow');
     if (mainWindow.isVisible()) {
         mainWindow.hide();
         mainWindow.setSkipTaskbar(true);
@@ -125,7 +120,7 @@ if (!locker) {
         }
         createWindow()
         const cwd = isDevelopment ? null : path.join(__dirname, '..');
-        appTray = new Tray(isDevelopment ? path.join(__dirname, "bundled", "logo.ico") : path.join(cwd, "app.asar/logo.ico"));
+        appTray = new Tray(isDevelopment ? path.join(__dirname, "..", "public", "logo@64.png") : path.join(cwd, "app.asar/logo@64.png"));
         appTray.setToolTip("集成翻译");
         let trayMenuTemplate = [{
             label: '显示/隐藏窗口(Ctrl/Command+`)',

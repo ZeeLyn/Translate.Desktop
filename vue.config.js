@@ -10,13 +10,13 @@ module.exports = {
                     "output": "./dist_electron"
                 },
                 "win": {
-                    "icon": "./public/logo.ico"
+                    "icon": "./public/logo@512.png"
                 },
                 "mac": {
-                    "icon": "./public/logo.512.ico"
+                    "icon": "./public/logo@512.png"
                 },
                 "linux": {
-                    "icon": "./public/logo.ico"
+                    "icon": "./public/logo@512.png"
                 },
                 "nsis": {
                     "oneClick": false,
@@ -24,9 +24,9 @@ module.exports = {
                     "perMachine": true,
                     "allowElevation": true,
                     "allowToChangeInstallationDirectory": true,
-                    "installerIcon": "./public/logo.ico",
-                    "uninstallerIcon": "./public/logo.ico",
-                    "installerHeaderIcon": "./public/.logo.ico",
+                    "installerIcon": "./public/logo@256.ico",
+                    "uninstallerIcon": "./public/logo@256.ico",
+                    "installerHeaderIcon": "./public/logo@256.ico",
                     "createDesktopShortcut": true,
                     "createStartMenuShortcut": true,
                     "shortcutName": "Translate Desktop"
