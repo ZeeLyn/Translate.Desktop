@@ -1,6 +1,6 @@
 'use strict'
 /*eslint-disable */
-import { app, protocol, BrowserWindow, ipcMain, nativeImage, Tray, Menu, globalShortcut } from 'electron'
+import { app, protocol, BrowserWindow, ipcMain, nativeImage, Tray, Menu, globalShortcut, dialog } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer'
 var path = require('path');
@@ -58,6 +58,9 @@ async function createWindow() {
     globalShortcut.register('CommandOrControl+`', function() {
         SwitchWindow();
     });
+    dialog.showMessageBox(null, {
+        message: "messge"
+    })
 }
 if (!isDevelopment) {
     // app.setLoginItemSettings({
