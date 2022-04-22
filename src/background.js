@@ -49,9 +49,12 @@ async function createWindow() {
         dialog.showMessageBox(null, {
             message: "messge"
         });
-        event.preventDefault();
-        win.hide();
-        win.setSkipTaskbar(true);
+        if (process.platform === 'win32') {
+            event.preventDefault();
+            win.hide();
+            win.setSkipTaskbar(true);
+        } else
+            app.exit();
     });
     win.on("focus", async() => {
         win.webContents.send("OnWindowFocus");
