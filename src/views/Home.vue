@@ -7,30 +7,35 @@
             </div>
             <div class="right">
                 <div class="history">
-                    <div v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)">{{ item.name }}</div>
+                    <div v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)">{{
+                    item.name }}</div>
                 </div>
                 <!-- <div class="split">|</div> -->
                 <div class="select" tabindex="1">
                     <select v-model="to">
-                        <option v-for="item in language" :key="item.code" :value="item.code" :label="item.name" :checked="item.code == to"></option>
+                        <option v-for="item in language" :key="item.code" :value="item.code" :label="item.name"
+                            :checked="item.code == to"></option>
                     </select>
                 </div>
 
                 <div class="split">|</div>
-                <div class="iconfont icon-ontop" title="置顶" @click="SetAlwaysOnTopHandle" :class="alwaysOnTop ? 'always-on-top' : ''"></div>
+                <div class="iconfont icon-ontop" title="置顶" @click="SetAlwaysOnTopHandle"
+                    :class="alwaysOnTop ? 'always-on-top' : ''"></div>
                 <div class="iconfont icon-close" title="关闭" @click="CloseHandle"></div>
             </div>
         </div>
         <div class="wrap">
             <div class="from">
-                <textarea rows="20" v-model="query" ref="query" autofocus></textarea>
+                <textarea rows="20" v-model="query" ref="query" autofocus @focus="onFocus"></textarea>
             </div>
             <div class="providers radio-custom">
                 <div>
-                    <label><input type="radio" name="providers" value="baidu" v-model="provider" :checked="provider == 'baidu'" />百度</label>
+                    <label><input type="radio" name="providers" value="baidu" v-model="provider"
+                            :checked="provider == 'baidu'" />百度</label>
                 </div>
                 <div>
-                    <label><input type="radio" name="providers" value="google" v-model="provider" :checked="provider == 'google'" />谷歌</label>
+                    <label><input type="radio" name="providers" value="google" v-model="provider"
+                            :checked="provider == 'google'" />谷歌</label>
                 </div>
             </div>
 
@@ -214,6 +219,9 @@ export default {
             localStorage.setItem("always-on-top", this.alwaysOnTop);
             ipcRenderer.send("SetAlwaysOnTop", this.alwaysOnTop);
         },
+        onFocus() {
+            this.$refs["query"].select();
+        },
         ClickTransItemHandle(e) {
             clipboard.writeText(e.target.innerText);
         },
@@ -231,25 +239,30 @@ export default {
     display: flex;
     margin: 5px 0;
 }
+
 .rec h4 {
     color: rgb(89, 255, 227);
     margin-top: 25px;
     font-size: 14px;
     font-weight: normal;
 }
+
 .rec ul li .info {
     flex: 1;
 }
+
 .rec ul li .info div {
     margin-right: 15px;
     display: inline-block;
     cursor: pointer;
     font-size: 14px;
 }
+
 .rec ul li .info div:hover {
     background: #fff;
     color: #292a2d;
 }
+
 .main {
     width: 100vw;
     height: 100vh;
@@ -259,6 +272,7 @@ export default {
     min-width: 600px;
     min-height: 400px;
 }
+
 .tool-bar {
     height: 50px;
     background: #292a2d;
@@ -266,6 +280,7 @@ export default {
 
     border-bottom: 1px #404246 solid;
 }
+
 .tool-bar .left {
     display: flex;
     align-items: center;
@@ -273,45 +288,55 @@ export default {
     -webkit-app-region: drag;
     flex: 1;
 }
+
 .tool-bar .left b {
     font-size: 15px;
 }
+
 .tool-bar .left .logo {
     font-size: 25px;
     color: #1296db;
     margin: 0 10px;
 }
+
 .tool-bar .right {
     display: flex;
     align-items: center;
     justify-content: flex-end;
 }
+
 .icon-ontop {
     font-size: 20px;
     margin: 0 10px;
     cursor: pointer;
     color: #595b5f;
 }
+
 .icon-close {
     font-size: 20px;
     color: #fff;
     margin: 0 10px;
     cursor: pointer;
 }
+
 .split {
     margin: 0 15px;
     color: #595b5f;
 }
+
 .always-on-top {
     color: #fff;
 }
+
 .history {
     display: flex;
 }
+
 .history div {
     margin: 0 10px;
     cursor: pointer;
 }
+
 .select {
     background: #404246;
     padding: 0 10px;
@@ -323,6 +348,7 @@ export default {
 
     display: flex;
 }
+
 .wrap .from,
 .wrap .to {
     flex: 1;
@@ -342,6 +368,7 @@ export default {
     flex-shrink: 0;
     background: #2e3033;
 }
+
 .wrap .providers div {
     display: flex;
     width: 100%;
@@ -350,9 +377,11 @@ export default {
     justify-content: center;
     line-height: 16px;
 }
+
 .wrap .providers label input {
     margin-right: 5px;
 }
+
 textarea {
     outline: none;
     padding: 10px;
@@ -364,6 +393,7 @@ textarea {
     resize: none;
     font-size: 14px;
 }
+
 .trans_wrap {
     padding: 10px;
     max-width: 100%;
@@ -373,6 +403,7 @@ textarea {
 
     position: relative;
 }
+
 .trans_wrap .socll {
     position: absolute;
     left: 10px;
@@ -382,13 +413,16 @@ textarea {
     overflow-y: auto;
     padding: 10px 0;
 }
+
 .trans_wrap .item {
     padding: 5px 0;
     display: flex;
 }
+
 .trans_wrap .item:hover {
     background: #4c4f53;
 }
+
 .trans_wrap .item .src {
     margin-right: 15px;
     flex-shrink: 0;
@@ -396,16 +430,19 @@ textarea {
     word-break: break-all;
     font-size: 14px;
 }
+
 .trans_wrap .item .dst {
     cursor: pointer;
     max-width: 50%;
     word-break: break-all;
     font-size: 14px;
 }
+
 .trans_wrap .item .dst:hover {
     background: #fff;
     color: #292a2d;
 }
+
 .loading {
     position: absolute;
     left: 0;
@@ -414,6 +451,7 @@ textarea {
     bottom: 0;
     background: rgba(0, 0, 0, 0.3);
 }
+
 .load-container {
     position: absolute;
     left: 0;
@@ -426,17 +464,20 @@ textarea {
     justify-content: center;
     z-index: 9999998;
 }
+
 .load-container .loader {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 }
+
 .load-container .loader label {
     font-size: 13px;
     margin-top: 5px;
     color: #fff;
 }
+
 .load-container .loading {
     font-size: 10px;
     position: relative;
@@ -459,16 +500,19 @@ textarea {
         -webkit-transform: rotate(0deg);
         transform: rotate(0deg);
     }
+
     100% {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
     }
 }
+
 @keyframes loading {
     0% {
         -webkit-transform: rotate(0deg);
         transform: rotate(0deg);
     }
+
     100% {
         -webkit-transform: rotate(360deg);
         transform: rotate(360deg);
