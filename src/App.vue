@@ -1,20 +1,13 @@
 <template>
     <router-view />
-    <alert :options="dialog"></alert>
-    <loading v-if="showLoading" :msg="msg"></loading>
 </template>
 <script>
 import { getCurrentInstance } from "vue";
-import alert from "./components/UI/alert.vue";
-import loading from "./components/UI/loading.vue";
+import { ElNotification } from "element-plus";
+import { globalStore } from "@/stores/globalStore";
 export default {
-    components: { alert, loading },
     data() {
-        return {
-            showLoading: false,
-            dialog: {},
-            msg: "加载中...",
-        };
+        return {};
     },
     beforeCreate() {
         const app = getCurrentInstance();
@@ -28,19 +21,56 @@ export default {
         app.appContext.config.globalProperties.$alert = (arg) => {
             this.dialog = arg;
         };
-        app.appContext.config.globalProperties.$http.defaults({
-            timeout: 10000,
-            $400: (err) => {
-                this.$alert({
-                    title: "提示",
-                    content: err.response.data ? err.response.data : err.response.statusText,
+        // app.appContext.config.globalProperties.$http.defaults({
+        //     timeout: 10000,
+        //     $400: (err) => {
+        //         this.$alert({
+        //             title: "提示",
+        //             content: err.response.data ? err.response.data : err.response.statusText,
+        //         });
+        //     },
+        //     $401: () => {},
+        //     $finally: () => {
+        //         this.$hideLoading();
+        //     },
+        // });
+        app.appContext.config.globalProperties.$http.defaults((config) => {
+            config.timeout = 10 * 1000;
+            config.$on_before_request = () => {
+                //options.headers["Authorization"] = "Bearer " + localStorage.getItem("access_token");
+            };
+
+            config.$error_network = (err) => {
+                console.error("network error ", err);
+                // ElNotification.error(err.response.data ? err.response.data : err.response.statusText);
+                ElNotification.error({
+                    message: err.response.data ? err.response.data : err.response.statusText,
+                    position: "bottom-right",
                 });
-            },
-            $401: () => {},
-            $finally: () => {
-                this.$hideLoading();
-            },
+            };
+            // config.proxy = {
+            //     protocol: "http",
+            //     host: "thecore.222233.xyz",
+            //     port: 29102,
+            //     auth: {
+            //         username: "43595",
+            //         password: "fQruf8dNTJ0I",
+            //     },
+            // };
         });
+    },
+    setup() {
+        return { store: globalStore() };
+    },
+    mounted() {
+        var localStorage_baidu_appid = localStorage.getItem("baidu.appid");
+        if (localStorage_baidu_appid != null) this.store.setBaiduAppId(localStorage_baidu_appid);
+
+        var localStorage_baidu_appkey = localStorage.getItem("baidu.key");
+        if (localStorage_baidu_appkey != null) this.store.setBaiduAppKey(localStorage_baidu_appkey);
+
+        var localStorage_google_domain = localStorage.getItem("google.domain");
+        if (localStorage_google_domain != null) this.store.setGoogleDomain(localStorage_google_domain);
     },
 };
 </script>
@@ -50,12 +80,12 @@ export default {
     margin: 0;
 }
 #app {
-    font-family: "Microsoft JhengHei UI" Avenir, Helvetica, Arial, sans-serif;
+    font-family: "Microsoft JhengHei UI", Avenir, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #fff;
-    font-size: 16px;
+    font-size: 14px;
 }
 @font-face {
     font-family: "iconfont";
@@ -236,5 +266,9 @@ input[type="radio"]:checked + label:before {
     border-bottom: 2px solid #fff;
     -webkit-transform: rotateZ(-45deg);
     transform: rotateZ(-45deg);
+}
+
+.my-dialog .el-dialog__body {
+    padding: 10px 15px !important;
 }
 </style>

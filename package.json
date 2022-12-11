@@ -1,6 +1,6 @@
 {
     "name": "TranslateDesktop",
-    "version": "0.2.1",
+    "version": "1.0.0",
     "private": true,
     "scripts": {
         "serve": "vue-cli-service serve",
@@ -13,29 +13,27 @@
     },
     "main": "background.js",
     "dependencies": {
-        "@g1100100/rest.request": "^1.0.4",
+        "@element-plus/icons-vue": "^2.0.10",
+        "@zeelyn/http": "^1.0.2",
         "core-js": "^3.6.5",
+        "element-plus": "^2.2.26",
         "md5": "^2.3.0",
-        "vue": "^3.2.33",
-        "vue-router": "^4.0.14"
+        "pinia": "^2.0.28",
+        "vue": "^3.2.45",
+        "vue-router": "^4.1.6"
     },
     "devDependencies": {
         "@vue/cli-plugin-babel": "~4.5.0",
         "@vue/cli-plugin-eslint": "~4.5.0",
         "@vue/cli-plugin-router": "~4.5.0",
         "@vue/cli-service": "~4.5.0",
-        "@vue/compiler-sfc": "^3.2.33",
+        "@vue/compiler-sfc": "^3.2.41",
         "babel-eslint": "^10.1.0",
-        "electron": "18.1.0",
+        "electron": "^22.0.0",
         "electron-devtools-installer": "^3.2.0",
         "eslint": "^6.7.2",
         "eslint-plugin-vue": "^7.0.0",
         "vue-cli-plugin-electron-builder": "^2.1.1"
-    },
-    "overrides": {
-        "vue-cli-plugin-electron-builder": {
-            "electron-builder": "^23.0.3"
-        }
     },
     "eslintConfig": {
         "root": true,

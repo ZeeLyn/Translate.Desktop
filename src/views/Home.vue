@@ -7,21 +7,21 @@
             </div>
             <div class="right">
                 <div class="history">
-                    <div v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)">{{
-                    item.name }}</div>
+                    <div v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)">{{ item.name }}</div>
                 </div>
                 <!-- <div class="split">|</div> -->
                 <div class="select" tabindex="1">
                     <select v-model="to">
-                        <option v-for="item in language" :key="item.code" :value="item.code" :label="item.name"
-                            :checked="item.code == to"></option>
+                        <option v-for="item in language" :key="item.code" :value="item.code" :label="item.name" :checked="item.code == to"></option>
                     </select>
                 </div>
 
                 <div class="split">|</div>
-                <div class="iconfont icon-ontop" title="置顶" @click="SetAlwaysOnTopHandle"
-                    :class="alwaysOnTop ? 'always-on-top' : ''"></div>
-                <div class="iconfont icon-close" title="关闭" @click="CloseHandle"></div>
+
+                <div class="iconfont icon-ontop" title="置顶" @click="SetAlwaysOnTopHandle" :class="alwaysOnTop ? 'always-on-top' : ''"></div>
+                <el-icon class="iconfont" :size="20" @click="settingsVisible = true"><Setting /></el-icon>
+                <el-icon class="iconfont" :size="22" @click="CloseHandle"><CircleCloseFilled /></el-icon>
+                <!-- <div class="iconfont icon-close" title="关闭" @click="CloseHandle"></div> -->
             </div>
         </div>
         <div class="wrap">
@@ -30,16 +30,14 @@
             </div>
             <div class="providers radio-custom">
                 <div>
-                    <label><input type="radio" name="providers" value="baidu" v-model="provider"
-                            :checked="provider == 'baidu'" />百度</label>
+                    <label><input type="radio" name="providers" value="baidu" v-model="provider" :checked="provider == 'baidu'" />百度</label>
                 </div>
                 <div>
-                    <label><input type="radio" name="providers" value="google" v-model="provider"
-                            :checked="provider == 'google'" />谷歌</label>
+                    <label><input type="radio" name="providers" value="google" v-model="provider" :checked="provider == 'google'" />谷歌</label>
                 </div>
             </div>
 
-            <div class="to">
+            <div class="to" v-loading="loading" element-loading-text="拼命加载中..." element-loading-background="rgba(0,0,0,0)">
                 <div class="trans_wrap">
                     <div class="socll">
                         <template v-if="trans_result.result">
@@ -67,16 +65,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="load-container" v-if="loading">
-                    <div class="loader">
-                        <div class="loading"></div>
-                        <label>拼命加载中...</label>
-                    </div>
-                </div>
             </div>
         </div>
-        <Toast ref="toast"></Toast>
     </div>
+    <el-dialog class="my-dialog" v-model="settingsVisible" title="设置" width="500px" destroy-on-close append-to-body draggable center> <Settings></Settings></el-dialog>
 </template>
 
 <script>
@@ -84,10 +76,11 @@ import lan from "../utils/lan.js";
 import { BaiduTranslate } from "../utils/baidu.js";
 import { GoogleTranslate } from "../utils/google.js";
 const { ipcRenderer, clipboard } = require("electron");
-import Toast from "../components/Toast.vue";
+import Settings from "../components/Settings.vue";
+import { globalStore } from "@/stores/globalStore";
 export default {
     name: "Home",
-    components: { Toast },
+    components: { Settings },
     watch: {
         provider: function (val) {
             this.TranslateHandle();
@@ -101,6 +94,7 @@ export default {
     },
     data() {
         return {
+            settingsVisible: false,
             loading: false,
             histroyLanguage: [],
             language: lan,
@@ -114,6 +108,9 @@ export default {
                 rec: [],
             },
         };
+    },
+    setup() {
+        return { store: globalStore() };
     },
     mounted() {
         this.GetHistroyLanguage();
@@ -140,7 +137,10 @@ export default {
         },
         FailCallback(err) {
             console.error(err);
-            this.$refs["toast"].showToast(err);
+            this.$notify({
+                message: err,
+                position: "bottom-right",
+            });
         },
         FinallyCallback() {
             this.loading = false;
@@ -154,10 +154,10 @@ export default {
             this.loading = true;
             switch (this.provider) {
                 case "baidu":
-                    BaiduTranslate(this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
+                    BaiduTranslate(this.store, this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
                     break;
                 case "google":
-                    GoogleTranslate(this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
+                    GoogleTranslate(this.store, this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
                     break;
             }
         },
@@ -311,11 +311,8 @@ export default {
     cursor: pointer;
     color: #595b5f;
 }
-
-.icon-close {
-    font-size: 20px;
-    color: #fff;
-    margin: 0 10px;
+.tool-bar .right .iconfont {
+    margin-right: 15px;
     cursor: pointer;
 }
 
@@ -441,81 +438,5 @@ textarea {
 .trans_wrap .item .dst:hover {
     background: #fff;
     color: #292a2d;
-}
-
-.loading {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-}
-
-.load-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999998;
-}
-
-.load-container .loader {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.load-container .loader label {
-    font-size: 13px;
-    margin-top: 5px;
-    color: #fff;
-}
-
-.load-container .loading {
-    font-size: 10px;
-    position: relative;
-    border-top: 4px solid rgba(255, 255, 255, 0.2);
-    border-right: 4px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 4px solid rgba(255, 255, 255, 0.2);
-    border-left: 4px solid #ffffff;
-    -webkit-transform: translateZ(0);
-    -ms-transform: translateZ(0);
-    transform: translateZ(0);
-    -webkit-animation: loading 1.1s infinite linear;
-    animation: loading 1.1s infinite linear;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-}
-
-@-webkit-keyframes loading {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
-}
-
-@keyframes loading {
-    0% {
-        -webkit-transform: rotate(0deg);
-        transform: rotate(0deg);
-    }
-
-    100% {
-        -webkit-transform: rotate(360deg);
-        transform: rotate(360deg);
-    }
 }
 </style>
