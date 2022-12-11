@@ -11,29 +11,6 @@ export default {
     },
     beforeCreate() {
         const app = getCurrentInstance();
-        app.appContext.config.globalProperties.$showLoading = (_msg) => {
-            if (_msg) this.msg = _msg;
-            this.showLoading = true;
-        };
-        app.appContext.config.globalProperties.$hideLoading = () => {
-            this.showLoading = false;
-        };
-        app.appContext.config.globalProperties.$alert = (arg) => {
-            this.dialog = arg;
-        };
-        // app.appContext.config.globalProperties.$http.defaults({
-        //     timeout: 10000,
-        //     $400: (err) => {
-        //         this.$alert({
-        //             title: "提示",
-        //             content: err.response.data ? err.response.data : err.response.statusText,
-        //         });
-        //     },
-        //     $401: () => {},
-        //     $finally: () => {
-        //         this.$hideLoading();
-        //     },
-        // });
         app.appContext.config.globalProperties.$http.defaults((config) => {
             config.timeout = 10 * 1000;
             config.$on_before_request = () => {
@@ -44,7 +21,7 @@ export default {
                 console.error("network error ", err);
                 // ElNotification.error(err.response.data ? err.response.data : err.response.statusText);
                 ElNotification.error({
-                    message: err.response.data ? err.response.data : err.response.statusText,
+                    message: err.message ? err.message : "翻译失败",
                     position: "bottom-right",
                 });
             };

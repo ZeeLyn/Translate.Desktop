@@ -135,12 +135,12 @@ export default {
         SuccessCallback(res) {
             this.trans_result = res;
         },
-        FailCallback(err) {
-            console.error(err);
-            this.$notify({
-                message: err,
-                position: "bottom-right",
-            });
+        FailCallback() {
+            // console.error(err);
+            // this.$notify({
+            //     message: err,
+            //     position: "bottom-right",
+            // });
         },
         FinallyCallback() {
             this.loading = false;
