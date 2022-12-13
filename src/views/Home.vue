@@ -7,16 +7,33 @@
             </div>
             <div class="right">
                 <div class="history">
-                    <div v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)">{{ item.name }}</div>
-                </div>
-                <!-- <div class="split">|</div> -->
-                <div class="select" tabindex="1">
-                    <select v-model="to">
-                        <option v-for="item in language" :key="item.code" :value="item.code" :label="item.name" :checked="item.code == to"></option>
-                    </select>
+                    <el-space wrap>
+                        <el-link v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)" :type="item.code == to ? 'primary' : 'info'">{{ item.name }}</el-link>
+                    </el-space>
+                    <!-- <div v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)">{{ item.name }}</div> -->
                 </div>
 
-                <div class="split">|</div>
+                <!-- <div class="split">|</div> -->
+                <!-- <div class="select" tabindex="1"> -->
+                <!-- <select v-model="to">
+                        <option v-for="item in language" :key="item.code" :value="item.code" :label="item.name" :checked="item.code == to"></option>
+                    </select> -->
+                <el-select v-model="to" style="width: 180px" size="small">
+                    <template #prefix> 目标： </template>
+                    <el-option v-for="item in language" :key="item.code" :value="item.code" :label="item.name"></el-option>
+                </el-select>
+                <!-- </div> -->
+                <!-- <el-divider direction="vertical" /> -->
+
+                <el-space wrap style="margin-left: 15px">
+                    <el-select v-model="provider" style="width: 140px" size="small">
+                        <template #prefix> 平台： </template>
+                        <el-option label="百度" value="baidu"></el-option>
+                        <el-option label="Google" value="google"></el-option>
+                    </el-select>
+                </el-space>
+
+                <el-divider direction="vertical" />
 
                 <div class="iconfont icon-ontop" title="置顶" @click="SetAlwaysOnTopHandle" :class="alwaysOnTop ? 'always-on-top' : ''"></div>
                 <el-icon class="iconfont" :size="20" @click="settingsVisible = true"><Setting /></el-icon>
@@ -25,47 +42,54 @@
             </div>
         </div>
         <div class="wrap">
-            <div class="from">
-                <textarea rows="20" v-model="query" ref="query" autofocus @focus="onFocus"></textarea>
-            </div>
-            <div class="providers radio-custom">
+            <splitpanes>
+                <pane>
+                    <div class="from">
+                        <textarea v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容"></textarea>
+                        <!-- <el-input class="input-textarea" type="textarea" v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容" clearable resize="none"></el-input> -->
+                    </div>
+                </pane>
+                <pane>
+                    <div class="to" v-loading="loading" element-loading-text="拼命加载中..." element-loading-background="rgba(0,0,0,0)">
+                        <div class="trans_wrap">
+                            <div class="socll">
+                                <template v-if="trans_result.result">
+                                    <div class="item" v-for="(item, idx) in trans_result.result" :key="idx">
+                                        <div class="src">{{ item.src }}</div>
+                                        <div class="dst" title="点击复制" @click="ClickTransItemHandle">{{ item.dst }}</div>
+                                    </div>
+                                </template>
+                                <div v-if="trans_result.rec" class="rec">
+                                    <div v-for="item in trans_result.rec" :key="item.atrr">
+                                        <h4>{{ item.attr }}</h4>
+                                        <ul>
+                                            <li v-for="r in item.items" :key="r.src">
+                                                <div class="info">
+                                                    <div @click="ClickTransItemHandle">{{ r.src }}</div>
+                                                    <template v-for="(k, idx) in r.trans" :key="k">
+                                                        {{ idx > 0 ? " ," : "" }}
+                                                        <span>{{ k }}</span>
+                                                    </template>
+                                                </div>
+                                                <!-- <div class="rate">{{ r.rate }}</div> -->
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </pane>
+            </splitpanes>
+
+            <!-- <div class="providers radio-custom">
                 <div>
                     <label><input type="radio" name="providers" value="baidu" v-model="provider" :checked="provider == 'baidu'" />百度</label>
                 </div>
                 <div>
                     <label><input type="radio" name="providers" value="google" v-model="provider" :checked="provider == 'google'" />谷歌</label>
                 </div>
-            </div>
-
-            <div class="to" v-loading="loading" element-loading-text="拼命加载中..." element-loading-background="rgba(0,0,0,0)">
-                <div class="trans_wrap">
-                    <div class="socll">
-                        <template v-if="trans_result.result">
-                            <div class="item" v-for="(item, idx) in trans_result.result" :key="idx">
-                                <div class="src">{{ item.src }}</div>
-                                <div class="dst" title="点击复制" @click="ClickTransItemHandle">{{ item.dst }}</div>
-                            </div>
-                        </template>
-                        <div v-if="trans_result.rec" class="rec">
-                            <div v-for="item in trans_result.rec" :key="item.atrr">
-                                <h4>{{ item.attr }}</h4>
-                                <ul>
-                                    <li v-for="r in item.items" :key="r.src">
-                                        <div class="info">
-                                            <div @click="ClickTransItemHandle">{{ r.src }}</div>
-                                            <template v-for="(k, idx) in r.trans" :key="k">
-                                                {{ idx > 0 ? " ," : "" }}
-                                                <span>{{ k }}</span>
-                                            </template>
-                                        </div>
-                                        <!-- <div class="rate">{{ r.rate }}</div> -->
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </div> -->
         </div>
     </div>
     <el-dialog class="my-dialog" v-model="settingsVisible" title="设置" width="500px" destroy-on-close append-to-body draggable center> <Settings></Settings></el-dialog>
@@ -78,9 +102,11 @@ import { GoogleTranslate } from "../utils/google.js";
 const { ipcRenderer, clipboard } = require("electron");
 import Settings from "../components/Settings.vue";
 import { globalStore } from "@/stores/globalStore";
+import { Splitpanes, Pane } from "splitpanes";
+import "splitpanes/dist/splitpanes.css";
 export default {
     name: "Home",
-    components: { Settings },
+    components: { Settings, Splitpanes, Pane },
     watch: {
         provider: function (val) {
             this.TranslateHandle();
@@ -327,17 +353,12 @@ export default {
 
 .history {
     display: flex;
+    align-items: center;
 }
 
 .history div {
     margin: 0 10px;
     cursor: pointer;
-}
-
-.select {
-    background: #404246;
-    padding: 0 10px;
-    margin-left: 15px;
 }
 
 .wrap {
@@ -348,35 +369,11 @@ export default {
 
 .wrap .from,
 .wrap .to {
-    flex: 1;
+    width: 100%;
+    height: 100%;
     display: flex;
     background: #323336;
     position: relative;
-}
-
-.wrap .providers {
-    width: 100px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-left: 1px #404246 solid;
-    border-right: 1px #404246 solid;
-    flex-shrink: 0;
-    background: #2e3033;
-}
-
-.wrap .providers div {
-    display: flex;
-    width: 100%;
-    align-items: center;
-    margin: 10px 0;
-    justify-content: center;
-    line-height: 16px;
-}
-
-.wrap .providers label input {
-    margin-right: 5px;
 }
 
 textarea {
@@ -388,7 +385,19 @@ textarea {
     color: #fff;
     background: none;
     resize: none;
-    font-size: 14px;
+    font-size: 13px;
+    margin-right: 2px;
+    line-height: 22px;
+}
+.trans_wrap .socll::-webkit-scrollbar,
+textarea::-webkit-scrollbar {
+    width: 3px;
+}
+.trans_wrap .socll::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb {
+    background: rgb(125, 124, 124);
+    width: 3px;
+    border-radius: 2px;
 }
 
 .trans_wrap {
@@ -397,7 +406,6 @@ textarea {
     flex: 1;
     border: none;
     text-align: left;
-
     position: relative;
 }
 
@@ -405,7 +413,7 @@ textarea {
     position: absolute;
     left: 10px;
     top: 0;
-    right: 0;
+    right: 2px;
     bottom: 0;
     overflow-y: auto;
     padding: 10px 0;
@@ -425,14 +433,16 @@ textarea {
     flex-shrink: 0;
     max-width: 45%;
     word-break: break-all;
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 22px;
 }
 
 .trans_wrap .item .dst {
     cursor: pointer;
     max-width: 50%;
     word-break: break-all;
-    font-size: 14px;
+    font-size: 13px;
+    line-height: 22px;
 }
 
 .trans_wrap .item .dst:hover {

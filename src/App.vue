@@ -41,7 +41,8 @@ export default {
     },
     mounted() {
         var localStorage_baidu_appid = localStorage.getItem("baidu.appid");
-        if (localStorage_baidu_appid != null) this.store.setBaiduAppId(localStorage_baidu_appid);
+        console.log("localStorage_baidu_appid", localStorage_baidu_appid);
+        if (localStorage_baidu_appid != null && localStorage_baidu_appid != undefined) this.store.setBaiduAppId(localStorage_baidu_appid);
 
         var localStorage_baidu_appkey = localStorage.getItem("baidu.key");
         if (localStorage_baidu_appkey != null) this.store.setBaiduAppKey(localStorage_baidu_appkey);
@@ -62,7 +63,7 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #fff;
-    font-size: 14px;
+    font-size: 13px;
 }
 @font-face {
     font-family: "iconfont";
@@ -102,150 +103,22 @@ body {
     margin: 0;
     height: 100vh;
     width: 100vw;
-    font-family: sans-serif;
     color: #fff;
-}
-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background: #2d2d2d;
-    border: none;
-    border-radius: 0;
-    color: #fff;
-    font-size: 16px;
-    margin: 0;
-    padding: 10px 23px 10px 0;
-    outline: none;
-    background: url("~@/assets/dropdown.png") no-repeat right center;
-    background-size: 18px auto;
-    font-weight: bold;
-}
-select option {
-    background: #2d2d2d;
-    color: #fff;
-    padding: 5px 0;
 }
 
 li {
     list-style: none;
 }
 
-/* 
-.select {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    height: 40px;
-}
-
-.option {
-    padding: 0 30px 0 10px;
-    min-height: 40px;
-    display: flex;
-    align-items: center;
-    background: #292a2d;
-    border-top: #222 solid 1px;
-    position: absolute;
-    top: 0;
-    width: 100%;
-    pointer-events: none;
-    order: 2;
-    z-index: 1;
-    box-sizing: border-box;
-    overflow: hidden;
-    white-space: nowrap;
-}
-
-.option:hover {
-    background: #666;
-}
-
-.select:focus .option {
-    position: relative;
-    pointer-events: all;
-}
-
-.select input[type="radio"] {
-    opacity: 0;
-    position: absolute;
-    left: -99999px;
-}
-
-input[type="radio"]:checked + label {
-    order: 1;
-    z-index: 2;
-    border-top: none;
-    position: relative;
-}
-
-input[type="radio"]:checked + label:after {
-    font-family: "iconfont" !important;
-    font-size: 16px;
-    font-style: normal;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    content: "\e641";
-    width: 0;
-    height: 0;
-    position: absolute;
-    right: 20px;
-    top: calc(50% - 8px);
-    pointer-events: none;
-    z-index: 3;
-}
-
-input[type="radio"]:checked + label:before {
-    position: absolute;
-    right: 0;
-    height: 40px;
-    width: 40px;
-    content: "";
-} */
-
-.checkbox-custom,
-.radio-custom {
-    position: relative;
-}
-
-.checkbox-custom input[type="checkbox"],
-.radio-custom input[type="radio"] {
-    margin: auto;
-    -webkit-appearance: none;
-    background: transparent;
-    width: 20px;
-    height: 20px;
-    border: 1px solid #ccc;
-    vertical-align: middle;
-    position: relative;
-}
-
-.checkbox-custom .radius-50,
-.radio-custom .radius-50 {
-    border-radius: 50%;
-}
-
-.checkbox-custom input[type="checkbox"]:checked,
-.radio-custom input[type="radio"]:checked {
-    border-color: #ff6435;
-    background: #ff6435;
-}
-
-.checkbox-custom input[type="checkbox"]:checked:after,
-.radio-custom input[type="radio"]:checked:after {
-    content: "";
-    position: absolute;
-    left: 3px;
-    top: 4px;
-    width: 10px;
-    height: 5px;
-    border-left: 2px solid #fff;
-    border-bottom: 2px solid #fff;
-    -webkit-transform: rotateZ(-45deg);
-    transform: rotateZ(-45deg);
-}
-
 .my-dialog .el-dialog__body {
     padding: 10px 15px !important;
+}
+.splitpanes__splitter {
+    width: 5px !important;
+    background-color: #404246;
+    background-image: url("~@/assets/dot.png");
+    background-size: 11px auto;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 </style>
