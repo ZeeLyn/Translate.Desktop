@@ -43,13 +43,13 @@
         </div>
         <div class="wrap">
             <splitpanes>
-                <pane>
+                <pane min-size="20">
                     <div class="from">
                         <textarea v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容"></textarea>
                         <!-- <el-input class="input-textarea" type="textarea" v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容" clearable resize="none"></el-input> -->
                     </div>
                 </pane>
-                <pane>
+                <pane min-size="20">
                     <div class="to" v-loading="loading" element-loading-text="拼命加载中..." element-loading-background="rgba(0,0,0,0)">
                         <div class="trans_wrap">
                             <div class="socll">
@@ -377,6 +377,7 @@ export default {
 }
 
 textarea {
+    font-family: "Microsoft JhengHei UI", Avenir, Helvetica, Arial, sans-serif;
     outline: none;
     padding: 10px;
     max-width: 100%;
