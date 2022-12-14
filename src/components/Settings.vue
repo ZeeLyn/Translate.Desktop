@@ -7,7 +7,7 @@
                 <el-input v-model="baidu.appid" placeholder="请输入百度翻译APP ID" clearable></el-input>
             </el-form-item>
             <el-form-item label="密钥">
-                <el-input v-model="baidu.key" placeholder="请输入百度翻译API秘钥" clearable></el-input>
+                <el-input v-model="baidu.key" placeholder="请输入百度翻译API秘钥" clearable type="password" show-password></el-input>
             </el-form-item>
             <el-form-item>
                 <div style="text-align: center; width: 100%">
