@@ -157,6 +157,15 @@ export default {
         });
         this.LastTimeInput = 0;
         this.TimingTranslate();
+
+        if (!localStorage.getItem("show-tips")) {
+            this.$alert("通过快捷键 Ctrl/Command+~ 可快速打开翻译窗口", "提示", {
+                center: true,
+                confirmButtonText: "我知道了",
+            }).then(() => {
+                localStorage.setItem("show-tips", 1);
+            });
+        }
     },
     methods: {
         SuccessCallback(res) {
