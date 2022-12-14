@@ -8,7 +8,7 @@
             <div class="right">
                 <div class="history">
                     <el-space wrap>
-                        <el-link v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)" :type="item.code == to ? 'primary' : 'info'">{{ item.name }}</el-link>
+                        <el-link title="最近使用的语言" class="not-drag" v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)" :type="item.code == to ? 'primary' : 'info'">{{ item.name }}</el-link>
                     </el-space>
                     <!-- <div v-for="item in histroyLanguage" :key="item.code" @click="SelectHistoryHandle(item.code)">{{ item.name }}</div> -->
                 </div>
@@ -18,7 +18,7 @@
                 <!-- <select v-model="to">
                         <option v-for="item in language" :key="item.code" :value="item.code" :label="item.name" :checked="item.code == to"></option>
                     </select> -->
-                <el-select v-model="to" style="width: 180px" size="small">
+                <el-select v-model="to" style="width: 180px" size="small" class="not-drag" title="当前翻译的目标语言">
                     <template #prefix> 目标： </template>
                     <el-option v-for="item in language" :key="item.code" :value="item.code" :label="item.name"></el-option>
                 </el-select>
@@ -26,7 +26,7 @@
                 <!-- <el-divider direction="vertical" /> -->
 
                 <el-space wrap style="margin-left: 15px">
-                    <el-select v-model="provider" style="width: 140px" size="small">
+                    <el-select v-model="provider" style="width: 140px" size="small" class="not-drag" title="使用的翻译平台">
                         <template #prefix> 平台： </template>
                         <el-option label="百度" value="baidu"></el-option>
                         <el-option label="Google" value="google"></el-option>
@@ -35,9 +35,9 @@
 
                 <el-divider direction="vertical" />
 
-                <div class="iconfont icon-ontop" title="置顶" @click="SetAlwaysOnTopHandle" :class="alwaysOnTop ? 'always-on-top' : ''"></div>
-                <el-icon class="iconfont" :size="20" @click="settingsVisible = true"><Setting /></el-icon>
-                <el-icon class="iconfont" :size="22" @click="CloseHandle"><CircleCloseFilled /></el-icon>
+                <div class="iconfont icon-ontop not-drag" title="置顶" @click="SetAlwaysOnTopHandle" :class="alwaysOnTop ? 'always-on-top' : ''"></div>
+                <el-icon title="设置" class="iconfont not-drag" :size="20" @click="settingsVisible = true"><Setting /></el-icon>
+                <el-icon title="关闭" class="iconfont not-drag" :size="22" @click="CloseHandle"><CircleCloseFilled /></el-icon>
                 <!-- <div class="iconfont icon-close" title="关闭" @click="CloseHandle"></div> -->
             </div>
         </div>
@@ -45,7 +45,7 @@
             <splitpanes>
                 <pane min-size="20">
                     <div class="from">
-                        <textarea v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容"></textarea>
+                        <textarea v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容" @input="InputHandle"></textarea>
                         <!-- <el-input class="input-textarea" type="textarea" v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容" clearable resize="none"></el-input> -->
                     </div>
                 </pane>
@@ -155,18 +155,19 @@ export default {
                 self.$refs["query"].focus();
             });
         });
+        this.LastTimeInput = 0;
         this.TimingTranslate();
     },
     methods: {
         SuccessCallback(res) {
             this.trans_result = res;
         },
-        FailCallback() {
+        FailCallback(err) {
             // console.error(err);
-            // this.$notify({
-            //     message: err,
-            //     position: "bottom-right",
-            // });
+            this.$notify.error({
+                message: err.code ? err.message : err,
+                position: "bottom-right",
+            });
         },
         FinallyCallback() {
             this.loading = false;
@@ -188,26 +189,18 @@ export default {
             }
         },
 
-        // InputHandle() {
-        //     const self = this;
-        //     clearTimeout(this.timer);
-        //     this.LastTimeInput = Date.now();
-        //     this.timer = setTimeout(() => {
-        //         if (Date.now() - self.LastTimeInput > 1000) {
-        //             self.TranslateHandle();
-        //         }
-        //         clearTimeout(self.timer);
-        //     }, 1000);
-        // },
+        InputHandle() {
+            this.LastTimeInput = Date.now();
+        },
 
         TimingTranslate() {
             const self = this;
             var _query = "";
             this.timer = setInterval(() => {
-                if (_query == self.query) return;
+                if (_query == self.query || self.loading || Date.now() - self.LastTimeInput < 1300) return;
                 _query = self.query;
                 self.TranslateHandle();
-            }, 1000);
+            }, 200);
         },
 
         GetHistroyLanguage() {
@@ -250,6 +243,11 @@ export default {
         },
         ClickTransItemHandle(e) {
             clipboard.writeText(e.target.innerText);
+            this.$notify.success({
+                message: "已复制到剪切板！",
+                position: "bottom-right",
+                duration: 2000,
+            });
         },
         CloseHandle() {
             ipcRenderer.send("CloseWindow");
@@ -300,10 +298,10 @@ export default {
 }
 
 .tool-bar {
-    height: 50px;
+    height: 40px;
     background: #292a2d;
     display: flex;
-
+    -webkit-app-region: drag;
     border-bottom: 1px #404246 solid;
 }
 
@@ -311,18 +309,17 @@ export default {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    -webkit-app-region: drag;
     flex: 1;
 }
 
 .tool-bar .left b {
-    font-size: 15px;
+    font-size: 13px;
 }
 
 .tool-bar .left .logo {
-    font-size: 25px;
+    font-size: 16px;
     color: #1296db;
-    margin: 0 10px;
+    margin: 0 5px 0 10px;
 }
 
 .tool-bar .right {

@@ -3,7 +3,7 @@
 </template>
 <script>
 import { getCurrentInstance } from "vue";
-import { ElNotification } from "element-plus";
+// import { ElNotification } from "element-plus";
 import { globalStore } from "@/stores/globalStore";
 export default {
     data() {
@@ -12,7 +12,7 @@ export default {
     beforeCreate() {
         const app = getCurrentInstance();
         app.appContext.config.globalProperties.$http.defaults((config) => {
-            config.timeout = 10 * 1000;
+            config.timeout = 5 * 1000;
             config.$on_before_request = () => {
                 //options.headers["Authorization"] = "Bearer " + localStorage.getItem("access_token");
             };
@@ -20,10 +20,10 @@ export default {
             config.$error_network = (err) => {
                 console.error("network error ", err);
                 // ElNotification.error(err.response.data ? err.response.data : err.response.statusText);
-                ElNotification.error({
-                    message: err.message ? err.message : "翻译失败",
-                    position: "bottom-right",
-                });
+                // ElNotification.error({
+                //     message: err.code ? err.message : "翻译失败",
+                //     position: "bottom-right",
+                // });
             };
             // config.proxy = {
             //     protocol: "http",
@@ -120,5 +120,8 @@ li {
     background-size: 11px auto;
     background-position: center;
     background-repeat: no-repeat;
+}
+.not-drag {
+    -webkit-app-region: no-drag;
 }
 </style>

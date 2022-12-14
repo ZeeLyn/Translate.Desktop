@@ -15,7 +15,7 @@ async function createWindow() {
     const win = (mainWindow = new BrowserWindow({
         width: 1000,
         height: 600,
-        minWidth: 800,
+        minWidth: 1000,
         minHeight: 600,
         show: false,
         skipTaskbar: true,

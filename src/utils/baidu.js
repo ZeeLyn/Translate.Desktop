@@ -1,7 +1,7 @@
 /* eslint-disable */
 import md5 from "md5";
 import request from "@zeelyn/http";
-import { ElNotification } from "element-plus";
+// import { ElNotification } from "element-plus";
 
 export function BaiduTranslate(store, query, from, to, callback, _err, _finally) {
     var salt = new Date().getTime();
@@ -21,10 +21,11 @@ export function BaiduTranslate(store, query, from, to, callback, _err, _finally)
         })
         .then((res) => {
             if (res.data.error_code) {
-                ElNotification.error({
-                    message: res.data.error_msg,
-                    position: "bottom-right",
-                });
+                if (_err) _err(res.data.error_msg);
+                // ElNotification.error({
+                //     message: res.data.error_msg,
+                //     position: "bottom-right",
+                // });
             } else callback({ result: res.data.trans_result });
         })
         .catch((err) => {
