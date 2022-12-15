@@ -57,8 +57,8 @@ export default {
     methods: {
         ResetBiaduHandle() {
             this.$confirm("确定要重置吗？", "提示").then(() => {
-                this.baidu.appid = this.store.defBiadu.appid;
-                this.baidu.key = this.store.defBiadu.key;
+                this.baidu.appid = this.store.defBaidu.appid;
+                this.baidu.key = this.store.defBaidu.key;
             });
         },
     },

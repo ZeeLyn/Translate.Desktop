@@ -119,7 +119,7 @@ if (!locker) {
         appTray.setToolTip("集成翻译");
         let trayMenuTemplate = [
             {
-                label: "显示/隐藏窗口(Ctrl/Command+`)",
+                label: "显示/隐藏窗口(Ctrl/Command+~)",
                 click: function () {
                     SwitchWindow();
                 },

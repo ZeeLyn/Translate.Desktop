@@ -344,13 +344,8 @@ export default {
     color: #595b5f;
 }
 .tool-bar .right .iconfont {
-    margin-right: 15px;
+    margin-right: 10px;
     cursor: pointer;
-}
-
-.split {
-    margin: 0 15px;
-    color: #595b5f;
 }
 
 .always-on-top {
