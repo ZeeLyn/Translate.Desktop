@@ -21,6 +21,7 @@
                     <el-option label="镜像：https://translate.amz.wang" value="https://translate.amz.wang" />
                     <el-option label="镜像：https://translate.3822808.com" value="https://translate.3822808.com" />
                     <el-option label="镜像：https://gt.cky.codes" value="https://gt.cky.codes" />
+                    <el-option label="镜像：https://gtranslate.cdn.haah.net" value="https://gtranslate.cdn.haah.net" />
                 </el-select>
             </el-form-item>
         </el-form>
