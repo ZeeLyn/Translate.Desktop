@@ -65,21 +65,45 @@ export function GoogleTranslate(store, query, from, to, callback, _err, _finally
                 ? res.data[1].map((item) => {
                       return {
                           attr: item[0],
-                          items: item[1].map((x, idx) => {
+                          items: item[2]?.map((x, idx) => {
                               var trans = item[2][idx];
-                              var p = {
+                              return {
                                   src: x,
                                   trans: trans[1],
                                   rate: trans[3],
                               };
-                              return p;
                           }),
                       };
                   })
                 : null;
+            var k = res.data[1]
+                ? res.data[1].map((item) => {
+                      return {
+                          attr: item[0],
+                          words: item[2].map((x) => {
+                              return {
+                                  word: x[0], //词语
+                                  definition: x[1], //释义
+                              };
+                          }),
+                      };
+                  })
+                : [];
+            var definitions = [];
+            k.forEach((item) => {
+                item.words.forEach((x) => {
+                    definitions.push({
+                        attr: item.attr,
+                        word: x.word,
+                        definition: x.definition,
+                    });
+                });
+            });
+            // console.log(definitions);
             callback({
                 result,
                 rec: rec,
+                definitions,
             });
         })
         .catch((err) => {

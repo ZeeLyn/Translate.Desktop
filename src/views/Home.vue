@@ -53,27 +53,39 @@
                     <div class="to" v-loading="loading" element-loading-text="拼命加载中..." element-loading-background="rgba(0,0,0,0)">
                         <div class="trans_wrap">
                             <div class="socll">
-                                <template v-if="trans_result.result">
+                                <template v-if="trans_result.result && (!trans_result.definitions || trans_result.definitions.length == 0)">
                                     <div class="item" v-for="(item, idx) in trans_result.result" :key="idx">
                                         <div class="src">{{ item.src }}</div>
-                                        <div class="dst" title="点击复制" @click="ClickTransItemHandle">{{ item.dst }}</div>
+                                        <el-check-tag checked title="点击复制" @click="ClickTransItemHandle">{{ item.dst }}</el-check-tag>
                                     </div>
                                 </template>
-                                <div v-if="trans_result.rec" class="rec">
-                                    <div v-for="item in trans_result.rec" :key="item.atrr">
-                                        <h4>{{ item.attr }}</h4>
-                                        <ul>
-                                            <li v-for="r in item.items" :key="r.src">
+                                <div v-if="trans_result.definitions" class="rec">
+                                    <div>
+                                        <!-- <h4>{{ item.attr }}</h4> -->
+                                        <table>
+                                            <tr v-for="item in trans_result.definitions" :key="item">
+                                                <td>
+                                                    <el-check-tag title="点击复制" checked @click="ClickTransItemHandle">{{ item.word }}</el-check-tag>
+                                                </td>
+                                                <td>{{ item.attr }}</td>
+                                                <td>
+                                                    <template v-for="(k, idx) in item.definition" :key="k">
+                                                        {{ idx > 0 ? " ," : "" }}
+                                                        <span>{{ k }}</span>
+                                                    </template>
+                                                </td>
+                                            </tr>
+                                            <!-- <li v-for="item in trans_result.definitions" :key="item">
                                                 <div class="info">
-                                                    <div @click="ClickTransItemHandle">{{ r.src }}</div>
-                                                    <template v-for="(k, idx) in r.trans" :key="k">
+                                                    <div @click="ClickTransItemHandle">{{ item.word }}</div>
+                                                    <div>{{ item.attr }}</div>
+                                                    <template v-for="(k, idx) in item.definition" :key="k">
                                                         {{ idx > 0 ? " ," : "" }}
                                                         <span>{{ k }}</span>
                                                     </template>
                                                 </div>
-                                                <!-- <div class="rate">{{ r.rate }}</div> -->
-                                            </li>
-                                        </ul>
+                                            </li> -->
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -132,6 +144,7 @@ export default {
             trans_result: {
                 result: [],
                 rec: [],
+                definitions: [],
             },
         };
     },
@@ -268,34 +281,13 @@ export default {
 };
 </script>
 <style scoped>
-.rec ul li {
-    display: flex;
-    margin: 5px 0;
+table {
+    box-sizing: border-box;
+    width: 100%;
 }
-
-.rec h4 {
-    color: rgb(89, 255, 227);
-    margin-top: 25px;
-    font-size: 14px;
-    font-weight: normal;
+table td {
+    padding: 3px 3px;
 }
-
-.rec ul li .info {
-    flex: 1;
-}
-
-.rec ul li .info div {
-    margin-right: 15px;
-    display: inline-block;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.rec ul li .info div:hover {
-    background: #fff;
-    color: #292a2d;
-}
-
 .main {
     width: 100vw;
     height: 100vh;
@@ -424,11 +416,12 @@ textarea::-webkit-scrollbar-thumb {
 .trans_wrap .item {
     padding: 5px 0;
     display: flex;
+    align-items: center;
 }
 
-.trans_wrap .item:hover {
+/* .trans_wrap .item:hover {
     background: #4c4f53;
-}
+} */
 
 .trans_wrap .item .src {
     margin-right: 15px;

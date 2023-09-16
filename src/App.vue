@@ -124,4 +124,10 @@ li {
 .not-drag {
     -webkit-app-region: no-drag;
 }
+
+.el-check-tag {
+    font-weight: normal !important;
+    font-size: 13px !important;
+    line-height: 18px !important;
+}
 </style>
