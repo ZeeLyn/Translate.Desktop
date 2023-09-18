@@ -95,7 +95,7 @@ export function GoogleTranslate(store, query, from, to, callback, _err, _finally
                     definitions.push({
                         attr: item.attr,
                         word: x.word,
-                        definition: x.definition,
+                        definition: x.definition?.join(" , "),
                     });
                 });
             });

@@ -69,10 +69,11 @@
                                                 </td>
                                                 <td>{{ item.attr }}</td>
                                                 <td>
-                                                    <template v-for="(k, idx) in item.definition" :key="k">
+                                                    <!-- <template v-for="(k, idx) in item.definition" :key="k">
                                                         {{ idx > 0 ? " ," : "" }}
                                                         <span>{{ k }}</span>
-                                                    </template>
+                                                    </template> -->
+                                                    {{ item.definition }}
                                                 </td>
                                             </tr>
                                             <!-- <li v-for="item in trans_result.definitions" :key="item">
