@@ -3,6 +3,7 @@
 import { app, protocol, BrowserWindow, ipcMain, nativeImage, Tray, Menu, globalShortcut } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
+
 var path = require("path");
 const isDevelopment = process.env.NODE_ENV !== "production";
 var appTray = null;
