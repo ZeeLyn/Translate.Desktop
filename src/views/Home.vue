@@ -105,7 +105,7 @@
             </div> -->
         </div>
     </div>
-    <el-dialog class="my-dialog" v-model="settingsVisible" title="设置" width="500px" destroy-on-close append-to-body draggable center> <Settings></Settings></el-dialog>
+    <el-dialog class="my-dialog" v-model="settingsVisible" title="设置" width="620px" destroy-on-close append-to-body draggable center> <Settings></Settings></el-dialog>
 </template>
 
 <script>
