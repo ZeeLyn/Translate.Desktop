@@ -12,7 +12,7 @@ export default {
     beforeCreate() {
         const app = getCurrentInstance();
         app.appContext.config.globalProperties.$http.defaults((config) => {
-            config.timeout = 5 * 1000;
+            config.timeout = 10 * 1000;
             config.$on_before_request = () => {
                 //options.headers["Authorization"] = "Bearer " + localStorage.getItem("access_token");
             };

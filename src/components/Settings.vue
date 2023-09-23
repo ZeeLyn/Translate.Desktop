@@ -16,7 +16,7 @@
             </el-form-item>
             <el-divider> Google翻译 </el-divider>
             <el-form-item label="域名">
-                <el-select v-model="google.domain" style="width: 100%">
+                <el-select v-model="google.domain" style="width: 100%" :loading="loading">
                     <el-option label="https://translate.google.com" value="https://translate.google.com">
                         <div class="option-wrap">
                             <span>官方：https://translate.google.com</span>
@@ -48,6 +48,7 @@ export default {
     name: "settings",
     data() {
         return {
+            loading: true,
             google_proxy_domains: [
                 {
                     domain: "https://translate.amz.wang",
@@ -101,7 +102,8 @@ export default {
         //     }
         // });
         this.$http
-            .get("https://raw.githubusercontent.com/ZeeLyn/Translate.Desktop/main/google_proxy_domains.json", {
+            .get("https://raw.githubusercontent.com/ZeeLyn/Translate.Desktop/main/src/google_proxy_domains.json", {
+                timeout: 20 * 1000,
                 $400: null,
                 $401: null,
                 $403: null,
@@ -113,7 +115,10 @@ export default {
                 this.google_proxy_domains = res.data;
                 this.ping();
             })
-            .catch(() => {});
+            .catch(() => {})
+            .finally(() => {
+                this.loading = false;
+            });
     },
     methods: {
         ping() {
