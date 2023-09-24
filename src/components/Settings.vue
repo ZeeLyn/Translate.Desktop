@@ -9,14 +9,11 @@
             <el-form-item label="密钥">
                 <el-input v-model="baidu.key" placeholder="请输入百度翻译API秘钥" clearable type="password" show-password></el-input>
             </el-form-item>
-            <el-form-item>
-                <div style="text-align: center; width: 100%">
-                    <el-button type="danger" @click="ResetBiaduHandle">重置为默认百度APP ID</el-button>
-                </div>
-            </el-form-item>
+
             <el-divider> Google翻译 </el-divider>
             <el-form-item label="域名">
-                <el-select v-model="google.domain" style="width: 100%" :loading="loading">
+                <el-select v-model="google.domain" style="width: 100%" :loading="loading" placement="top">
+                    <template #prefix> {{ google.domain == "https://translate.google.com" ? "官方" : "镜像" }}： </template>
                     <el-option label="https://translate.google.com" value="https://translate.google.com">
                         <div class="option-wrap">
                             <span>官方：https://translate.google.com</span>
@@ -125,12 +122,6 @@ export default {
                         detail.status = 1;
                     }
                 });
-            });
-        },
-        ResetBiaduHandle() {
-            this.$confirm("确定要重置吗？", "提示").then(() => {
-                this.baidu.appid = this.store.defBaidu.appid;
-                this.baidu.key = this.store.defBaidu.key;
             });
         },
     },

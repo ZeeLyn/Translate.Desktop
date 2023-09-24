@@ -2,13 +2,9 @@ import { defineStore } from "pinia";
 
 export const globalStore = defineStore("globalStore", {
     state: () => ({
-        defBaidu: {
-            appid: "20211114000998654",
-            key: "0gPJopPB9IlfqAb1cS8k",
-        },
         baidu: {
-            appid: "20211114000998654",
-            key: "0gPJopPB9IlfqAb1cS8k",
+            appid: "",
+            key: "",
         },
         google: {
             domain: "https://translate.google.com",

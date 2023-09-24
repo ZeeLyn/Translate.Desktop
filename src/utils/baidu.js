@@ -4,6 +4,11 @@ import request from "@zeelyn/http";
 // import { ElNotification } from "element-plus";
 
 export function BaiduTranslate(store, query, from, to, callback, _err, _finally) {
+    if (!store.baidu.appid || !store.baidu.key) {
+        if (_err) _err("请先申请一个免费的百度翻译账号，在右上角设置里填入申请的APPID和秘钥。");
+        if (_finally) _finally();
+        return;
+    }
     var salt = new Date().getTime();
     var sign_source = `${store.baidu.appid}${query}${salt}${store.baidu.key}`;
     request
