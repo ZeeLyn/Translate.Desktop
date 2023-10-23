@@ -1,40 +1,57 @@
 <template>
     <div>
-        <el-form label-width="auto">
-            <el-divider> 百度翻译 </el-divider>
-            <el-alert type="warning" :closable="false" style="margin-bottom: 10px"> 百度翻译API有访问限制，可以点击此链接<a href="http://api.fanyi.baidu.com" target="_blank">http://api.fanyi.baidu.com</a>自己申请一个账号，免费的。 </el-alert>
-            <el-form-item label="APP ID">
-                <el-input v-model="baidu.appid" placeholder="请输入百度翻译APP ID" clearable></el-input>
-            </el-form-item>
-            <el-form-item label="密钥">
-                <el-input v-model="baidu.key" placeholder="请输入百度翻译API秘钥" clearable type="password" show-password></el-input>
-            </el-form-item>
+        <el-tabs>
+            <el-tab-pane label="翻译">
+                <el-form label-width="auto">
+                    <el-divider> 百度翻译 </el-divider>
+                    <el-alert type="warning" :closable="false" style="margin-bottom: 10px"> 百度翻译API有访问限制，可以点击此链接<a href="http://api.fanyi.baidu.com" target="_blank">http://api.fanyi.baidu.com</a>自己申请一个账号，免费的。 </el-alert>
+                    <el-form-item label="APP ID">
+                        <el-input v-model="baidu.appid" placeholder="请输入百度翻译APP ID" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="密钥">
+                        <el-input v-model="baidu.key" placeholder="请输入百度翻译API秘钥" clearable type="password" show-password></el-input>
+                    </el-form-item>
 
-            <el-divider> Google翻译 </el-divider>
-            <el-form-item label="域名">
-                <el-select v-model="google.domain" style="width: 100%" :loading="loading" placement="top">
-                    <template #prefix> {{ google.domain == "https://translate.google.com" ? "官方" : "镜像" }}： </template>
-                    <el-option label="https://translate.google.com" value="https://translate.google.com">
-                        <div class="option-wrap">
-                            <span>官方：https://translate.google.com</span>
-                            <span style="margin-left: 10px"> <el-tag type="warning" size="small">国内无法访问</el-tag></span>
-                        </div></el-option
-                    >
-                    <el-option v-for="item in google_proxy_domains" :key="item" :value="item.domain">
-                        <div class="option-wrap">
-                            <span>镜像：{{ item.domain }}</span>
-                            <span style="margin-left: 10px">
-                                <span v-if="item.status == 0">
-                                    <svg class="loading" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M96 512c0-19.33 15.67-35 35-35s35 15.67 35 35c0 191.09 154.91 346 346 346s346-154.91 346-346-154.91-346-346-346c-19.33 0-35-15.67-35-35s15.67-35 35-35c229.75 0 416 186.25 416 416S741.75 928 512 928 96 741.75 96 512z" fill="#1296db"></path></svg>
-                                </span>
-                                <el-tag v-if="item.status == -1" type="danger" size="small">失效</el-tag>
-                                <el-tag v-if="item.status == 1" type="success" size="small">可用</el-tag>
-                            </span>
-                        </div>
-                    </el-option>
-                </el-select>
-            </el-form-item>
-        </el-form>
+                    <el-divider> Google翻译 </el-divider>
+                    <el-form-item label="域名">
+                        <el-select v-model="google.domain" style="width: 100%" :loading="loading" placement="top">
+                            <template #prefix> {{ google.domain == "https://translate.google.com" ? "官方" : "镜像" }}： </template>
+                            <el-option label="https://translate.google.com" value="https://translate.google.com">
+                                <div class="option-wrap">
+                                    <span>官方：https://translate.google.com</span>
+                                    <span style="margin-left: 10px"> <el-tag type="warning" size="small">国内无法访问</el-tag></span>
+                                </div></el-option
+                            >
+                            <el-option v-for="item in google_proxy_domains" :key="item" :value="item.domain">
+                                <div class="option-wrap">
+                                    <span>镜像：{{ item.domain }}</span>
+                                    <span style="margin-left: 10px">
+                                        <span v-if="item.status == 0">
+                                            <svg class="loading" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M96 512c0-19.33 15.67-35 35-35s35 15.67 35 35c0 191.09 154.91 346 346 346s346-154.91 346-346-154.91-346-346-346c-19.33 0-35-15.67-35-35s15.67-35 35-35c229.75 0 416 186.25 416 416S741.75 928 512 928 96 741.75 96 512z" fill="#1296db"></path></svg>
+                                        </span>
+                                        <el-tag v-if="item.status == -1" type="danger" size="small">失效</el-tag>
+                                        <el-tag v-if="item.status == 1" type="success" size="small">可用</el-tag>
+                                    </span>
+                                </div>
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                </el-form>
+            </el-tab-pane>
+            <el-tab-pane label="网络">
+                <el-form label-width="auto">
+                    <el-form-item label="代理">
+                        <el-switch v-model="proxy.enable"></el-switch>
+                    </el-form-item>
+                    <el-form-item label="地址">
+                        <el-input v-model="proxy.host" placeholder="请输入代理服务器地址" clearable></el-input>
+                    </el-form-item>
+                    <el-form-item label="端口">
+                        <el-input v-model="proxy.port" placeholder="请输入代理服务器端口号" clearable type="number"></el-input>
+                    </el-form-item>
+                </el-form>
+            </el-tab-pane>
+        </el-tabs>
     </div>
 </template>
 <script>
@@ -70,6 +87,7 @@ export default {
             google: {
                 domain: this.store.google.domain,
             },
+            proxy: this.store.proxy,
         };
     },
 
@@ -82,6 +100,12 @@ export default {
         },
         "google.domain": function (val) {
             this.store.setGoogleDomain(val);
+        },
+        proxy: {
+            deep: true,
+            handler: function (v) {
+                this.store.setProxy(v);
+            },
         },
     },
     setup() {

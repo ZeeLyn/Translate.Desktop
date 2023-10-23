@@ -9,6 +9,11 @@ export const globalStore = defineStore("globalStore", {
         google: {
             domain: "https://translate.google.com",
         },
+        proxy: {
+            enable: false,
+            host: "",
+            port: 0,
+        },
     }),
     actions: {
         setBaiduAppId(appid) {
@@ -22,6 +27,10 @@ export const globalStore = defineStore("globalStore", {
         setGoogleDomain(domain) {
             this.google.domain = domain;
             localStorage.setItem("google.domain", domain);
+        },
+        setProxy(v) {
+            this.proxy = v;
+            localStorage.setItem("proxy", JSON.stringify(v));
         },
     },
 });

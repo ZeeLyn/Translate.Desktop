@@ -5,43 +5,25 @@
 import { getCurrentInstance } from "vue";
 // import { ElNotification } from "element-plus";
 import { globalStore } from "@/stores/globalStore";
+import * as tunnel from "tunnel";
 export default {
     data() {
         return {};
     },
-    beforeCreate() {
-        const app = getCurrentInstance();
-        app.appContext.config.globalProperties.$http.defaults((config) => {
-            config.timeout = 10 * 1000;
-            config.$on_before_request = () => {
-                //options.headers["Authorization"] = "Bearer " + localStorage.getItem("access_token");
-            };
-
-            config.$error_network = (err) => {
-                console.error("network error ", err);
-                // ElNotification.error(err.response.data ? err.response.data : err.response.statusText);
-                // ElNotification.error({
-                //     message: err.code ? err.message : "翻译失败",
-                //     position: "bottom-right",
-                // });
-            };
-            // config.proxy = {
-            //     protocol: "http",
-            //     host: "thecore.222233.xyz",
-            //     port: 29102,
-            //     auth: {
-            //         username: "43595",
-            //         password: "fQruf8dNTJ0I",
-            //     },
-            // };
-        });
+    watch: {
+        "store.proxy": {
+            deep: true,
+            handler: function () {
+                this.setHttDefaultOptions();
+            },
+        },
     },
     setup() {
-        return { store: globalStore() };
+        return { store: globalStore(), app: getCurrentInstance() };
     },
     mounted() {
+        this.setHttDefaultOptions();
         var localStorage_baidu_appid = localStorage.getItem("baidu.appid");
-        console.log("localStorage_baidu_appid", localStorage_baidu_appid);
         if (localStorage_baidu_appid != null && localStorage_baidu_appid != undefined) this.store.setBaiduAppId(localStorage_baidu_appid);
 
         var localStorage_baidu_appkey = localStorage.getItem("baidu.key");
@@ -49,6 +31,39 @@ export default {
 
         var localStorage_google_domain = localStorage.getItem("google.domain");
         if (localStorage_google_domain != null) this.store.setGoogleDomain(localStorage_google_domain);
+
+        var proxy = localStorage.getItem("proxy");
+        if (proxy) this.store.setProxy(JSON.parse(proxy));
+    },
+    methods: {
+        setHttDefaultOptions() {
+            this.app.appContext.config.globalProperties.$http.defaults((config) => {
+                config.timeout = 10 * 1000;
+                config.$on_before_request = () => {
+                    //options.headers["Authorization"] = "Bearer " + localStorage.getItem("access_token");
+                };
+
+                config.$error_network = (err) => {
+                    console.error("network error ", err);
+                };
+
+                if (this.store.proxy && this.store.proxy.host && this.store.proxy.port && this.store.proxy.enable) {
+                    console.log("开启代理");
+                    const agent = tunnel.httpsOverHttp({
+                        proxy: {
+                            host: this.store.proxy.host,
+                            port: this.store.proxy.port,
+                        },
+                    });
+                    config.httpsAgent = agent;
+                    config.proxy = false;
+                } else {
+                    console.log("关闭代理");
+                    config.httpsAgent = null;
+                    config.proxy = false;
+                }
+            });
+        },
     },
 };
 </script>
