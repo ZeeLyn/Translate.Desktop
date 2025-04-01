@@ -3,13 +3,15 @@
 import { app, protocol, BrowserWindow, ipcMain, nativeImage, Tray, Menu, globalShortcut } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
-
+import axios from "axios";
 var path = require("path");
+import * as tunnel from "tunnel";
 const isDevelopment = process.env.NODE_ENV !== "production";
 var appTray = null;
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { secure: true, standard: true } }]);
 var mainWindow = null;
+var proxyConfig = {};
 async function createWindow() {
     // Create the browser window.
     const cwd = isDevelopment ? null : path.join(__dirname, "..");
@@ -24,14 +26,15 @@ async function createWindow() {
         webPreferences: {
             // Use pluginOptions.nodeIntegration, leave this alone
             // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-            nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
-            contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+            nodeIntegration: true, //process.env.ELECTRON_NODE_INTEGRATION,
+            contextIsolation: false, // !process.env.ELECTRON_NODE_INTEGRATION,
             webSecurity: false,
         },
         darkTheme: true,
         //alwaysOnTop: true,
         frame: false,
     }));
+
     if (process.platform == "darwin") {
         app.dock.hide();
     }
@@ -162,4 +165,25 @@ ipcMain.on("SetAlwaysOnTop", (event, arg) => {
 });
 ipcMain.on("CloseWindow", (event, arg) => {
     mainWindow.close();
+});
+ipcMain.on("SetProxy", (event, arg) => {
+    proxyConfig = arg;
+    // console.log(arg);
+    // if (arg && arg.host && arg.port && arg.enable) {
+    //     process.env["HTTPS_PROXY"] = process.env["HTTP_PROXY"] = `http://${arg.host}:${arg.port}`;
+    // } else process.env["HTTPS_PROXY"] = process.env["HTTP_PROXY"] = "";
+    // console.log("代理:" + process.env["HTTPS_PROXY"]);
+});
+ipcMain.handle("$HttpGet", async (_, url, config) => {
+    var conf = { ...config };
+    if (proxyConfig && proxyConfig.host && proxyConfig.port && proxyConfig.enable) {
+        conf.httpsAgent = tunnel.httpsOverHttp({
+            proxy: {
+                host: proxyConfig.host,
+                port: proxyConfig.port,
+            },
+        });
+    }
+    var res = await axios.get(url, conf);
+    return res.data;
 });

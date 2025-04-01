@@ -30,6 +30,7 @@
                         <template #prefix> 平台： </template>
                         <el-option label="百度" value="baidu"></el-option>
                         <el-option label="Google" value="google"></el-option>
+                        <!-- <el-option label="DeepL" value="DeepL"></el-option> -->
                     </el-select>
                 </el-space>
 
@@ -112,6 +113,7 @@
 import lan from "../utils/lan.js";
 import { BaiduTranslate } from "../utils/baidu.js";
 import { GoogleTranslate } from "../utils/google.js";
+import { DeepLTranslate } from "../utils/deepl.js";
 const { ipcRenderer, clipboard } = require("electron");
 import Settings from "../components/Settings.vue";
 import { globalStore } from "@/stores/globalStore";
@@ -152,7 +154,16 @@ export default {
     setup() {
         return { store: globalStore() };
     },
-    mounted() {
+    async mounted() {
+        // var r = ipcRenderer.invoke("$HttpGet", "https://www.google.com", {});
+        // console.log(r);
+        // .then((res) => {
+        //     console.log("收到", res);
+        // })
+        // .catch((error) => {
+        //     console.error(error);
+        // });
+
         this.GetHistroyLanguage();
         this.to = localStorage.getItem("target-language") || "en";
         this.provider = localStorage.getItem("translate-provider") || "baidu";
@@ -208,6 +219,9 @@ export default {
                     break;
                 case "google":
                     GoogleTranslate(this.store, this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
+                    break;
+                case "DeepL":
+                    DeepLTranslate(this.store, this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
                     break;
             }
         },

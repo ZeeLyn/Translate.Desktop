@@ -5,7 +5,8 @@
 import { getCurrentInstance } from "vue";
 // import { ElNotification } from "element-plus";
 import { globalStore } from "@/stores/globalStore";
-import * as tunnel from "tunnel";
+// import * as tunnel from "tunnel";
+const { ipcRenderer } = require("electron");
 export default {
     data() {
         return {};
@@ -13,15 +14,20 @@ export default {
     watch: {
         "store.proxy": {
             deep: true,
-            handler: function () {
-                this.setHttDefaultOptions();
+            handler: function (v) {
+                // this.setHttDefaultOptions();
+                console.log(v);
+                ipcRenderer.send("SetProxy", { ...v });
             },
         },
     },
     setup() {
         return { store: globalStore(), app: getCurrentInstance() };
     },
-    mounted() {
+
+    async mounted() {
+        // process.env["HTTPS_PROXY"] = "http://localhost:7890";
+        // console.table(process.env);
         this.setHttDefaultOptions();
         var localStorage_baidu_appid = localStorage.getItem("baidu.appid");
         if (localStorage_baidu_appid != null && localStorage_baidu_appid != undefined) this.store.setBaiduAppId(localStorage_baidu_appid);
@@ -48,19 +54,24 @@ export default {
                 };
 
                 if (this.store.proxy && this.store.proxy.host && this.store.proxy.port && this.store.proxy.enable) {
-                    console.log("开启代理");
-                    const agent = tunnel.httpsOverHttp({
-                        proxy: {
-                            host: this.store.proxy.host,
-                            port: this.store.proxy.port,
-                        },
-                    });
-                    config.httpsAgent = agent;
-                    config.proxy = false;
+                    // config.proxy = {
+                    //     protocol: "https",
+                    //     host: this.store.proxy.host,
+                    //     port: this.store.proxy.port,
+                    // };
+                    console.log("开启代理", this.store.proxy);
+                    // const agent = tunnel.httpsOverHttp({
+                    //     proxy: {
+                    //         host: this.store.proxy.host,
+                    //         port: this.store.proxy.port,
+                    //     },
+                    // });
+                    // config.httpsAgent = agent;
+                    // config.proxy = true;
                 } else {
                     console.log("关闭代理");
-                    config.httpsAgent = null;
-                    config.proxy = false;
+                    // config.httpsAgent = null;
+                    config.proxy = null;
                 }
             });
         },

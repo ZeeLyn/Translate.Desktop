@@ -1,6 +1,6 @@
 /* eslint-disable */
 import md5 from "md5";
-import request from "@zeelyn/http";
+const { ipcRenderer } = require("electron");
 // import { ElNotification } from "element-plus";
 
 export function BaiduTranslate(store, query, from, to, callback, _err, _finally) {
@@ -11,8 +11,9 @@ export function BaiduTranslate(store, query, from, to, callback, _err, _finally)
     }
     var salt = new Date().getTime();
     var sign_source = `${store.baidu.appid}${query}${salt}${store.baidu.key}`;
-    request
-        .get("http://api.fanyi.baidu.com/api/trans/vip/translate", {
+    ipcRenderer
+        .invoke("$HttpGet", "http://api.fanyi.baidu.com/api/trans/vip/translate", {
+            timeout: 10 * 1000,
             params: {
                 q: query,
                 appid: store.baidu.appid,
@@ -25,13 +26,13 @@ export function BaiduTranslate(store, query, from, to, callback, _err, _finally)
             },
         })
         .then((res) => {
-            if (res.data.error_code) {
-                if (_err) _err(res.data.error_msg);
+            if (res.error_code) {
+                if (_err) _err(res.error_msg);
                 // ElNotification.error({
                 //     message: res.data.error_msg,
                 //     position: "bottom-right",
                 // });
-            } else callback({ result: res.data.trans_result });
+            } else callback({ result: res.trans_result });
         })
         .catch((err) => {
             if (_err) _err(err);

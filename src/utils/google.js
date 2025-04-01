@@ -1,7 +1,6 @@
 /* eslint-disable */
 
-import http from "@zeelyn/http";
-
+const { ipcRenderer } = require("electron");
 export function GoogleTranslate(store, query, from, to, callback, _err, _finally) {
     var xo = function (a) {
         return function () {
@@ -47,13 +46,16 @@ export function GoogleTranslate(store, query, from, to, callback, _err, _finally
         a %= 1e6;
         return c + (a.toString() + "." + (a ^ b));
     };
-    http.get(`${store.google.domain}/translate_a/single?client=webapp&ie=UTF-8&sl=${from}&tl=${to}&hl=zh-CN&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=gt&pc=1&otf=1&ssel=0&tsel=0&kc=1&tk=${Ao(query)}`, {
-        params: {
-            q: query,
-        },
-    })
+
+    ipcRenderer
+        .invoke("$HttpGet", `${store.google.domain}/translate_a/single?client=webapp&ie=UTF-8&sl=${from}&tl=${to}&hl=zh-CN&dt=at&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=gt&pc=1&otf=1&ssel=0&tsel=0&kc=1&tk=${Ao(query)}`, {
+            timeout: 10 * 1000,
+            params: {
+                q: query,
+            },
+        })
         .then((res) => {
-            var result = res.data[0]
+            var result = res[0]
                 .filter((item) => item[0])
                 .map((item) => {
                     return {
@@ -61,8 +63,8 @@ export function GoogleTranslate(store, query, from, to, callback, _err, _finally
                         dst: item[0],
                     };
                 });
-            var rec = res.data[1]
-                ? res.data[1].map((item) => {
+            var rec = res[1]
+                ? res[1].map((item) => {
                       return {
                           attr: item[0],
                           items: item[2]?.map((x, idx) => {
@@ -76,8 +78,8 @@ export function GoogleTranslate(store, query, from, to, callback, _err, _finally
                       };
                   })
                 : null;
-            var k = res.data[1]
-                ? res.data[1].map((item) => {
+            var k = res[1]
+                ? res[1].map((item) => {
                       return {
                           attr: item[0],
                           words: item[2].map((x) => {
