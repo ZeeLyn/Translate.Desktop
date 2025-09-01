@@ -1,0 +1,123 @@
+{
+    "sentences": [
+        {
+            "trans": "Are you OK",
+            "orig": "你好吗",
+            "backend": 10
+        },
+        {
+            "src_translit": "Nǐ hǎo ma"
+        }
+    ],
+    "dict": [
+        {
+            "pos": "phrase",
+            "terms": [
+                "How are you doing?",
+                "How are you getting along?",
+                "Hi, how are you?"
+            ],
+            "entry": [
+                {
+                    "word": "How are you doing?",
+                    "reverse_translation": [
+                        "你好吗?"
+                    ]
+                },
+                {
+                    "word": "How are you getting along?",
+                    "reverse_translation": [
+                        "你好吗?"
+                    ]
+                },
+                {
+                    "word": "Hi, how are you?",
+                    "reverse_translation": [
+                        "你好吗?"
+                    ]
+                }
+            ],
+            "base_form": "你好吗?",
+            "pos_enum": 10
+        },
+        {
+            "pos": "phrase",
+            "terms": [
+                "How are you doing?",
+                "How are you getting along?",
+                "Hi, how are you?"
+            ],
+            "entry": [
+                {
+                    "word": "2How are you doing?",
+                    "reverse_translation": [
+                        "你好吗?"
+                    ]
+                },
+                {
+                    "word": "2How are you getting along?",
+                    "reverse_translation": [
+                        "你好吗?"
+                    ]
+                },
+                {
+                    "word": "2Hi, how are you?",
+                    "reverse_translation": [
+                        "你好吗?"
+                    ]
+                }
+            ],
+            "base_form": "你好吗?",
+            "pos_enum": 10
+        }
+    ],
+    "src": "zh-CN",
+    "alternative_translations": [
+        {
+            "src_phrase": "你好吗",
+            "alternative": [
+                {
+                    "word_postproc": "Are you OK",
+                    "has_preceding_space": true,
+                    "attach_to_next_token": false,
+                    "backends": [
+                        10
+                    ]
+                },
+                {
+                    "word_postproc": "How are you",
+                    "has_preceding_space": true,
+                    "attach_to_next_token": false,
+                    "backends": [
+                        10
+                    ]
+                }
+            ],
+            "srcunicodeoffsets": [
+                {
+                    "begin": 0,
+                    "end": 3
+                }
+            ],
+            "raw_src_segment": "你好吗",
+            "start_pos": 0,
+            "end_pos": 0
+        }
+    ],
+    "confidence": 1,
+    "spell": {},
+    "ld_result": {
+        "srclangs": [
+            "zh-CN"
+        ],
+        "srclangs_confidences": [
+            1
+        ],
+        "extended_srclangs": [
+            "zh-CN"
+        ]
+    },
+    "gendered_translation_result": {
+        "status": 2
+    }
+}
