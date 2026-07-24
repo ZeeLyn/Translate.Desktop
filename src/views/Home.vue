@@ -46,7 +46,7 @@
 			<splitpanes>
 				<pane min-size="20">
 					<div class="from">
-						<textarea v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容" @input="InputHandle" maxlength="5000"></textarea>
+						<textarea v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容" maxlength="5000"></textarea>
 						<!-- <el-input class="input-textarea" type="textarea" v-model="query" ref="query" autofocus @focus="onFocus" placeholder="请输入要翻译的内容" clearable resize="none"></el-input> -->
 					</div>
 				</pane>
@@ -111,6 +111,7 @@ import Settings from "../components/Settings.vue";
 import { globalStore } from "@/stores/globalStore";
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
+import { useDebounceFn } from "@vueuse/core";
 export default {
 	name: "Home",
 	components: { Settings, Splitpanes, Pane },
@@ -123,6 +124,9 @@ export default {
 			this.TranslateHandle();
 			this.SetHistroyLanguage(val);
 			localStorage.setItem("target-language", val);
+		},
+		query: function () {
+			this.executeTranslate();
 		},
 	},
 	data() {
@@ -143,8 +147,18 @@ export default {
 			},
 		};
 	},
+
 	setup() {
 		return { store: globalStore() };
+	},
+	created() {
+		this.executeTranslate = useDebounceFn(
+			() => {
+				this.TranslateHandle();
+			},
+			1000,
+			{ maxWait: 5000 },
+		);
 	},
 	async mounted() {
 		// var r = ipcRenderer.invoke("$HttpGet", "https://www.google.com", {});
@@ -172,8 +186,6 @@ export default {
 				self.$refs["query"].focus();
 			});
 		});
-		this.LastTimeInput = 0;
-		this.TimingTranslate();
 
 		if (!localStorage.getItem("show-tips")) {
 			this.$alert("通过快捷键 Ctrl/Command+~ 可快速打开翻译窗口", "提示", {
@@ -216,20 +228,6 @@ export default {
 					DeepLTranslate(this.store, this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
 					break;
 			}
-		},
-
-		InputHandle() {
-			this.LastTimeInput = Date.now();
-		},
-
-		TimingTranslate() {
-			const self = this;
-			var _query = "";
-			this.timer = setInterval(() => {
-				if (_query == self.query || self.loading || Date.now() - self.LastTimeInput < 1300) return;
-				_query = self.query;
-				self.TranslateHandle();
-			}, 200);
 		},
 
 		GetHistroyLanguage() {
