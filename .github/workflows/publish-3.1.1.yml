@@ -1,0 +1,49 @@
+name: Publish verified 3.1.1 packages
+
+on:
+  push:
+    branches: [codex/publish-3.1.1]
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 3.1.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+      - name: Verify existing build and release source
+        shell: bash
+        run: |
+          test "$(git rev-parse HEAD)" = 9c144b00340867ea3ee8e057c0f18de0b9baee04
+          test "$(gh api repos/$GH_REPO/actions/runs/42008913532 --jq .head_sha)" = b81fc1d0329930ecf689029270d1768790e5e52f
+          test "$(gh api repos/$GH_REPO/actions/runs/42008913532/jobs --jq '[.jobs[] | select(.name != "release") | select(.conclusion == "success")] | length')" = 7
+          git fetch --depth=1 origin b81fc1d0329930ecf689029270d1768790e5e52f
+          git diff --exit-code b81fc1d0329930ecf689029270d1768790e5e52f HEAD -- src public package.json package-lock.json vue.config.js babel.config.js .env.production
+      - uses: actions/download-artifact@v4
+        with:
+          run-id: 42008913532
+          github-token: ${{ github.token }}
+          pattern: packages-*
+          merge-multiple: true
+          path: release-assets
+      - run: node scripts/release-checksums.cjs
+      - name: Upload verified assets and publish
+        shell: bash
+        run: |
+          test "$(gh release view 3.1.1 --json isDraft --jq .isDraft)" = true
+          test "$(gh api repos/$GH_REPO/git/ref/tags/3.1.1 --jq .object.sha)" = 9c144b00340867ea3ee8e057c0f18de0b9baee04
+          gh release edit 3.1.1 --target 9c144b00340867ea3ee8e057c0f18de0b9baee04 --notes-file CHANGELOG.md
+          gh release upload 3.1.1 release-assets/* --clobber
+          test "$(gh release view 3.1.1 --json assets --jq '.assets | length')" = 12
+          gh release edit 3.1.1 --draft=false --latest
