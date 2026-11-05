@@ -3,15 +3,21 @@
 import { app, protocol, BrowserWindow, ipcMain, nativeImage, Tray, Menu, globalShortcut } from "electron";
 import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS3_DEVTOOLS } from "electron-devtools-installer";
-import axios from "axios";
+import { request, requestError, setProxy } from "./utils/http";
+import { translateGoogle } from "./utils/googleClient";
 var path = require("path");
-import * as tunnel from "tunnel";
 const isDevelopment = process.env.NODE_ENV !== "production";
 var appTray = null;
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([{ scheme: "app", privileges: { secure: true, standard: true } }]);
 var mainWindow = null;
-var proxyConfig = {};
+var isQuitting = false;
+app.on("before-quit", () => {
+	isQuitting = true;
+});
+app.on("will-quit", () => {
+	globalShortcut.unregisterAll();
+});
 async function createWindow() {
 	// Create the browser window.
 	const cwd = isDevelopment ? null : path.join(__dirname, "..");
@@ -48,6 +54,7 @@ async function createWindow() {
 		win.loadURL("app://./index.html");
 	}
 	win.on("close", (event) => {
+		if (isQuitting) return;
 		event.preventDefault();
 		win.hide();
 		win.setSkipTaskbar(true);
@@ -80,6 +87,10 @@ app.on("activate", () => {
 	// On macOS it's common to re-create a window in the app when the
 	// dock icon is clicked and there are no other windows open.
 	if (BrowserWindow.getAllWindows().length === 0) createWindow();
+	else if (mainWindow) {
+		mainWindow.show();
+		mainWindow.setSkipTaskbar(false);
+	}
 });
 
 async function SwitchWindow() {
@@ -132,7 +143,6 @@ if (!locker) {
 				label: "退出",
 				click: function () {
 					app.quit();
-					app.exit();
 				},
 			},
 		];
@@ -167,36 +177,20 @@ ipcMain.on("CloseWindow", (event, arg) => {
 	mainWindow.close();
 });
 ipcMain.on("SetProxy", (event, arg) => {
-	proxyConfig = arg;
-	// console.log(arg);
-	// if (arg && arg.host && arg.port && arg.enable) {
-	//     process.env["HTTPS_PROXY"] = process.env["HTTP_PROXY"] = `http://${arg.host}:${arg.port}`;
-	// } else process.env["HTTPS_PROXY"] = process.env["HTTP_PROXY"] = "";
-	// console.log("代理:" + process.env["HTTPS_PROXY"]);
+	setProxy(arg);
 });
 ipcMain.handle("$HttpGet", async (_, url, config) => {
-	var conf = { ...config };
-	if (proxyConfig && proxyConfig.host && proxyConfig.port && proxyConfig.enable) {
-		conf.httpsAgent = tunnel.httpsOverHttp({
-			proxy: {
-				host: proxyConfig.host,
-				port: proxyConfig.port,
-			},
-		});
+	try {
+		return (await request({ ...config, method: "get", url })).data;
+	} catch (error) {
+		throw requestError(error);
 	}
-	var res = await axios.get(url, conf);
-	return res.data;
 });
 ipcMain.handle("$HttpPost", async (_, url, data, config) => {
-	var conf = { ...config };
-	if (proxyConfig && proxyConfig.host && proxyConfig.port && proxyConfig.enable) {
-		conf.httpsAgent = tunnel.httpsOverHttp({
-			proxy: {
-				host: proxyConfig.host,
-				port: proxyConfig.port,
-			},
-		});
+	try {
+		return (await request({ ...config, method: "post", url, data })).data;
+	} catch (error) {
+		throw requestError(error);
 	}
-	var res = await axios.post(url, data, conf);
-	return res.data;
 });
+ipcMain.handle("$GoogleTranslate", (_, domain, query, from, to) => translateGoogle(domain, query, from, to, app.userAgentFallback));

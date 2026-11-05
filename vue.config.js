@@ -6,6 +6,8 @@ module.exports = {
             builderOptions: {
                 appId: "com.cilent.app.translate.desktop",
                 productName: "Translate Desktop",
+                // Vue CLI 已将依赖打入 bundle，避免重复包含根目录的 node_modules。
+                files: ["**/*", "!node_modules{,/**/*}"],
                 directories: {
                     output: "./dist_electron",
                 },
@@ -14,6 +16,12 @@ module.exports = {
                 },
                 mac: {
                     icon: "./public/logo@512.png",
+                    category: "public.app-category.productivity",
+                    artifactName: "${productName}-${version}-mac-${arch}.${ext}",
+                    target: [
+                        { target: "dmg", arch: ["arm64"] },
+                        { target: "zip", arch: ["arm64"] },
+                    ],
                 },
                 linux: {
                     icon: "./public/logo@512.png",

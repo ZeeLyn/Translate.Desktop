@@ -76,5 +76,3 @@ typings/
 # FuseBox cache
 .fusebox/
 .DS_Store
-package-lock.json
-package-lock.json

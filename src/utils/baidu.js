@@ -12,7 +12,7 @@ export function BaiduTranslate(store, query, from, to, callback, _err, _finally)
     var salt = new Date().getTime();
     var sign_source = `${store.baidu.appid}${query}${salt}${store.baidu.key}`;
     ipcRenderer
-        .invoke("$HttpGet", "http://api.fanyi.baidu.com/api/trans/vip/translate", {
+        .invoke("$HttpGet", "https://fanyi-api.baidu.com/api/trans/vip/translate", {
             timeout: 10 * 1000,
             params: {
                 q: query,

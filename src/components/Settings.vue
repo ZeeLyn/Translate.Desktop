@@ -26,15 +26,16 @@
                                 <div class="option-wrap">
                                     <span>镜像：{{ item.domain }}</span>
                                     <span style="margin-left: 10px">
-                                        <span v-if="item.status == 0">
-                                            <svg class="loading" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M96 512c0-19.33 15.67-35 35-35s35 15.67 35 35c0 191.09 154.91 346 346 346s346-154.91 346-346-154.91-346-346-346c-19.33 0-35-15.67-35-35s15.67-35 35-35c229.75 0 416 186.25 416 416S741.75 928 512 928 96 741.75 96 512z" fill="#1296db"></path></svg>
-                                        </span>
+                                        <el-tag v-if="item.status == 0" type="info" size="small">未检测</el-tag>
                                         <el-tag v-if="item.status == -1" type="danger" size="small">失效</el-tag>
                                         <el-tag v-if="item.status == 1" type="success" size="small">可用</el-tag>
                                     </span>
                                 </div>
                             </el-option>
                         </el-select>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button :loading="checkingMirrors" @click="ping">检测镜像</el-button>
                     </el-form-item>
                 </el-form>
             </el-tab-pane>
@@ -43,12 +44,17 @@
                     <el-form-item label="代理">
                         <el-switch v-model="proxy.enable"></el-switch>
                     </el-form-item>
+                    <el-alert type="info" :closable="false" style="margin-bottom: 10px">填写代理软件的 HTTP/Mixed 端口，支持 HTTP 和 HTTPS 请求；启用后连接失败会报错。</el-alert>
                     <el-form-item label="地址">
-                        <el-input v-model="proxy.host" placeholder="请输入代理服务器地址" clearable></el-input>
+                        <el-input v-model="proxy.host" placeholder="例如 127.0.0.1" clearable></el-input>
                     </el-form-item>
                     <el-form-item label="端口">
                         <el-input v-model="proxy.port" placeholder="请输入代理服务器端口号" clearable type="number"></el-input>
                     </el-form-item>
+                    <el-form-item>
+                        <el-button :loading="testingProxy" @click="testProxy">测试 Google 连接</el-button>
+                    </el-form-item>
+                    <el-alert v-if="proxyTestResult" :title="proxyTestResult" :type="proxyTestSuccess ? 'success' : 'error'" :closable="false"></el-alert>
                 </el-form>
             </el-tab-pane>
         </el-tabs>
@@ -56,12 +62,16 @@
 </template>
 <script>
 import { globalStore } from "@/stores/globalStore";
-const childProcess = require("child_process");
+const { ipcRenderer } = require("electron");
 export default {
     name: "settings",
     data() {
         return {
             loading: true,
+            checkingMirrors: false,
+            testingProxy: false,
+            proxyTestResult: "",
+            proxyTestSuccess: false,
             google_proxy_domains: [
                 {
                     domain: "https://translate.amz.wang",
@@ -105,6 +115,7 @@ export default {
             deep: true,
             handler: function (v) {
                 this.store.setProxy(v);
+                this.proxyTestResult = "";
             },
         },
     },
@@ -112,17 +123,13 @@ export default {
         return { store: globalStore() };
     },
     mounted() {
-        this.$http
-            .get(`https://raw.githubusercontent.com/ZeeLyn/Translate.Desktop/main/src/google_proxy_domains.json?v=${Date.now()}`, {
-                timeout: 20 * 1000,
-                $400: null,
-                $401: null,
-                $403: null,
-                $catch: null,
-                $error_network: null,
+        ipcRenderer
+            .invoke("$HttpGet", `https://raw.githubusercontent.com/ZeeLyn/Translate.Desktop/main/src/google_proxy_domains.json?v=${Date.now()}`, {
+                timeout: 10000,
             })
             .then((res) => {
-                this.google_proxy_domains = res.data.map((x) => {
+                if (!Array.isArray(res)) throw new Error("镜像列表格式错误");
+                this.google_proxy_domains = res.filter(x => typeof x === "string").map((x) => {
                     return {
                         domain: x,
                         status: 0,
@@ -131,41 +138,49 @@ export default {
             })
             .catch(() => {})
             .finally(() => {
-                this.ping();
                 this.loading = false;
             });
     },
     methods: {
-        ping() {
-            this.google_proxy_domains.forEach((item) => {
-                var detail = item;
-                childProcess.exec(`ping ${detail.domain.replaceAll("https://", "").replaceAll("http://", "")}`, { maxBuffer: 1024 * 5000 }, (err) => {
-                    if (err) {
-                        detail.status = -1;
-                    } else {
-                        detail.status = 1;
-                    }
-                });
-            });
+        async testProxy() {
+            this.testingProxy = true;
+            this.proxyTestResult = "";
+            ipcRenderer.send("SetProxy", { ...this.proxy });
+            try {
+                await ipcRenderer.invoke("$HttpGet", "https://translate.google.com/", { timeout: 10000 });
+                this.proxyTestSuccess = true;
+                this.proxyTestResult = this.proxy.enable ? "Google 连接成功（通过配置的 HTTP 代理）" : "Google 直连成功（代理未启用）";
+            } catch (error) {
+                this.proxyTestSuccess = false;
+                this.proxyTestResult = error.message;
+            } finally {
+                this.testingProxy = false;
+            }
+        },
+        async ping() {
+            this.checkingMirrors = true;
+            await Promise.all(this.google_proxy_domains.map(async (item) => {
+                try {
+                    const url = new URL(item.domain);
+                    if (url.protocol !== "https:") throw new Error("镜像必须使用 HTTPS");
+                    url.pathname = "/translate_a/single";
+                    const res = await ipcRenderer.invoke("$HttpGet", url.href, {
+                        timeout: 5000,
+                        params: { client: "gtx", sl: "en", tl: "zh-CN", dt: "t", q: "hello" },
+                    });
+                    item.status = Array.isArray(res?.[0]?.[0]) && typeof res[0][0][0] === "string" ? 1 : -1;
+                } catch {
+                    item.status = -1;
+                }
+            }));
+            this.checkingMirrors = false;
         },
     },
 };
 </script>
 <style scoped>
-@keyframes loading {
-    0% {
-        transform: rotate(0);
-    }
-    100% {
-        transform: rotate(360deg);
-    }
-}
 .option-wrap {
     display: flex;
     align-items: center;
-}
-.loading {
-    animation: loading 1s linear infinite;
-    margin-bottom: -5px;
 }
 </style>

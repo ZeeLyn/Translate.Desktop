@@ -105,7 +105,6 @@
 import lan from "../utils/lan.js";
 import { BaiduTranslate } from "../utils/baidu.js";
 import { GoogleTranslate } from "../utils/google.js";
-import { DeepLTranslate } from "../utils/deepl.js";
 const { ipcRenderer, clipboard } = require("electron");
 import Settings from "../components/Settings.vue";
 import { globalStore } from "@/stores/globalStore";
@@ -126,6 +125,9 @@ export default {
 			localStorage.setItem("target-language", val);
 		},
 		query: function () {
+			this.translationRequest++;
+			this.trans_result = {};
+			this.loading = false;
 			this.executeTranslate();
 		},
 	},
@@ -133,6 +135,7 @@ export default {
 		return {
 			settingsVisible: false,
 			loading: false,
+			translationRequest: 0,
 			histroyLanguage: [],
 			language: lan,
 			query: "",
@@ -157,7 +160,6 @@ export default {
 				this.TranslateHandle();
 			},
 			1000,
-			{ maxWait: 5000 },
 		);
 	},
 	async mounted() {
@@ -203,7 +205,7 @@ export default {
 		FailCallback(err) {
 			// console.error(err);
 			this.$notify.error({
-				message: err.code ? err.message : err,
+				message: err.message || String(err),
 				position: "bottom-right",
 			});
 		},
@@ -211,22 +213,26 @@ export default {
 			this.loading = false;
 		},
 		TranslateHandle() {
+			const requestId = ++this.translationRequest;
 			if (!this.query) {
 				this.trans_result = {};
 				this.loading = false;
 				return;
 			}
 			this.loading = true;
+			const success = res => { if (requestId === this.translationRequest) this.SuccessCallback(res); };
+			const fail = err => { if (requestId === this.translationRequest) this.FailCallback(err); };
+			const finish = () => { if (requestId === this.translationRequest) this.FinallyCallback(); };
 			switch (this.provider) {
 				case "baidu":
-					BaiduTranslate(this.store, this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
+					BaiduTranslate(this.store, this.query, this.from, this.to, success, fail, finish);
 					break;
 				case "google":
-					GoogleTranslate(this.store, this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
+					GoogleTranslate(this.store, this.query, this.from, this.to, success, fail, finish);
 					break;
-				case "DeepL":
-					DeepLTranslate(this.store, this.query, this.from, this.to, this.SuccessCallback, this.FailCallback, this.FinallyCallback);
-					break;
+				default:
+					fail(new Error("不支持的翻译平台，请选择百度或 Google"));
+					finish();
 			}
 		},
 

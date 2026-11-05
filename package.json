@@ -3,17 +3,18 @@
     "version": "3.1.0",
     "private": true,
     "scripts": {
-        "serve": "vue-cli-service serve",
-        "build": "vue-cli-service build",
+        "serve": "node --openssl-legacy-provider node_modules/@vue/cli-service/bin/vue-cli-service.js serve",
+        "build": "node --openssl-legacy-provider node_modules/@vue/cli-service/bin/vue-cli-service.js build",
         "lint": "vue-cli-service lint",
-        "electron:build": "vue-cli-service electron:build",
-        "electron:serve": "vue-cli-service electron:serve"
+        "test": "node scripts/check.cjs",
+        "electron:build": "node --openssl-legacy-provider node_modules/@vue/cli-service/bin/vue-cli-service.js electron:build",
+        "electron:build:mac:arm64": "npm run electron:build -- --mac --arm64 --publish never --config.mac.identity=- --config.mac.hardenedRuntime=false",
+        "electron:serve": "node --openssl-legacy-provider node_modules/@vue/cli-service/bin/vue-cli-service.js electron:serve"
     },
     "main": "background.js",
     "dependencies": {
         "@element-plus/icons-vue": "^2.3.1",
         "@vueuse/core": "^14.3.0",
-        "@zeelyn/http": "^1.0.2",
         "axios": "^1.11.0",
         "core-js": "^3.39.0",
         "element-plus": "^2.9.1",
@@ -37,6 +38,9 @@
         "eslint-plugin-vue": "^7.0.0",
         "vue-cli-plugin-electron-builder": "^2.1.1"
     },
+    "overrides": {
+        "electron-builder": "26.18.0"
+    },
     "eslintConfig": {
         "root": true,
         "env": {
@@ -57,6 +61,6 @@
         "not dead"
     ],
     "volta": {
-        "node": "16.20.2"
+        "node": "22.23.4"
     }
 }

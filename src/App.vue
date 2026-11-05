@@ -2,86 +2,31 @@
 	<router-view />
 </template>
 <script>
-import { getCurrentInstance } from "vue";
-// import { ElNotification } from "element-plus";
 import { globalStore } from "@/stores/globalStore";
-// import * as tunnel from "tunnel";
 const { ipcRenderer } = require("electron");
-import test from "@/test.json";
 export default {
-	data() {
-		return {};
-	},
-	watch: {
-		"store.proxy": {
-			deep: true,
-			handler: function (v) {
-				// this.setHttDefaultOptions();
-				// console.log(v);
-				ipcRenderer.send("SetProxy", { ...v });
-			},
-		},
-	},
-	setup() {
-		return { store: globalStore(), app: getCurrentInstance() };
-	},
-
-	async mounted() {
-		// process.env["HTTPS_PROXY"] = "http://localhost:7890";
-		// console.table(process.env);
-		this.setHttDefaultOptions();
-		var localStorage_baidu_appid = localStorage.getItem("baidu.appid");
-		if (localStorage_baidu_appid != null && localStorage_baidu_appid != undefined) this.store.setBaiduAppId(localStorage_baidu_appid);
-
-		var localStorage_baidu_appkey = localStorage.getItem("baidu.key");
-		if (localStorage_baidu_appkey != null) this.store.setBaiduAppKey(localStorage_baidu_appkey);
-
-		var localStorage_google_domain = localStorage.getItem("google.domain");
-		if (localStorage_google_domain != null) this.store.setGoogleDomain(localStorage_google_domain);
-
-		var proxy = localStorage.getItem("proxy");
-		if (proxy) this.store.setProxy(JSON.parse(proxy));
-
-		const dict = test.dict?.map((x) => {
-			return { ...x.entry };
-		});
-		console.log(dict);
-	},
-	methods: {
-		setHttDefaultOptions() {
-			this.app.appContext.config.globalProperties.$http.defaults((config) => {
-				config.timeout = 10 * 1000;
-				config.$on_before_request = () => {
-					//options.headers["Authorization"] = "Bearer " + localStorage.getItem("access_token");
-				};
-
-				config.$error_network = (err) => {
-					console.error("network error ", err);
-				};
-
-				if (this.store.proxy && this.store.proxy.host && this.store.proxy.port && this.store.proxy.enable) {
-					// config.proxy = {
-					//     protocol: "https",
-					//     host: this.store.proxy.host,
-					//     port: this.store.proxy.port,
-					// };
-					console.log("开启代理", this.store.proxy);
-					// const agent = tunnel.httpsOverHttp({
-					//     proxy: {
-					//         host: this.store.proxy.host,
-					//         port: this.store.proxy.port,
-					//     },
-					// });
-					// config.httpsAgent = agent;
-					// config.proxy = true;
-				} else {
-					console.log("关闭代理");
-					// config.httpsAgent = null;
-					config.proxy = null;
-				}
-			});
-		},
-	},
+    watch: {
+        "store.proxy": {
+            deep: true,
+            handler(v) { ipcRenderer.send("SetProxy", { ...v }); },
+        },
+    },
+    setup() { return { store: globalStore() }; },
+    created() {
+        const appid = localStorage.getItem("baidu.appid");
+        if (appid != null) this.store.setBaiduAppId(appid);
+        const key = localStorage.getItem("baidu.key");
+        if (key != null) this.store.setBaiduAppKey(key);
+        const domain = localStorage.getItem("google.domain");
+        if (domain != null) this.store.setGoogleDomain(domain);
+        try {
+            const proxy = JSON.parse(localStorage.getItem("proxy"));
+            if (proxy && typeof proxy === "object") this.store.setProxy(proxy);
+        } catch (error) {
+            console.warn("代理设置无法读取，请重新设置", error.message);
+        }
+        ipcRenderer.send("SetProxy", { ...this.store.proxy });
+    },
 };
 </script>
 <style>
