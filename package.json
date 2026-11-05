@@ -1,6 +1,10 @@
 {
     "name": "TranslateDesktop",
-    "version": "3.1.0",
+    "version": "3.1.1",
+    "description": "Desktop translation tool with Baidu and Google Translate",
+    "author": { "name": "ZeeLyn", "email": "zeelyn@qq.com" },
+    "license": "MIT",
+    "homepage": "https://github.com/ZeeLyn/Translate.Desktop",
     "private": true,
     "scripts": {
         "serve": "node --openssl-legacy-provider node_modules/@vue/cli-service/bin/vue-cli-service.js serve",

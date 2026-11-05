@@ -13,6 +13,8 @@ module.exports = {
                 },
                 win: {
                     icon: "./public/logo@512.png",
+                    artifactName: "${productName}-${version}-win-${arch}-setup.${ext}",
+                    target: ["nsis"],
                 },
                 mac: {
                     icon: "./public/logo@512.png",
@@ -20,13 +22,14 @@ module.exports = {
                     hardenedRuntime: false,
                     category: "public.app-category.productivity",
                     artifactName: "${productName}-${version}-mac-${arch}.${ext}",
-                    target: [
-                        { target: "dmg", arch: ["arm64"] },
-                        { target: "zip", arch: ["arm64"] },
-                    ],
+                    target: ["dmg", "zip"],
                 },
                 linux: {
                     icon: "./public/logo@512.png",
+                    category: "Utility",
+                    executableName: "translate-desktop",
+                    artifactName: "${productName}-${version}-linux-${arch}.${ext}",
+                    target: ["AppImage", "deb"],
                 },
                 nsis: {
                     oneClick: false,

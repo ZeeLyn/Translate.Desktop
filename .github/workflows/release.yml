@@ -1,0 +1,105 @@
+name: Build and Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'codex/release-*'
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.platform }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-2022, platform: win, arch: x64 }
+          - { os: windows-2022, platform: win, arch: ia32 }
+          - { os: windows-2022, platform: win, arch: arm64 }
+          - { os: macos-15-intel, platform: mac, arch: x64 }
+          - { os: macos-15, platform: mac, arch: arm64 }
+          - { os: ubuntu-22.04, platform: linux, arch: x64 }
+          - { os: ubuntu-24.04-arm, platform: linux, arch: arm64 }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint -- --no-fix
+      - run: npm test
+      - run: npm run electron:build -- --${{ matrix.platform }} --${{ matrix.arch }} --publish never
+      - run: node scripts/check-package.cjs ${{ matrix.platform }} ${{ matrix.arch }}
+      - name: Verify macOS signature and disk image
+        if: matrix.platform == 'mac'
+        shell: bash
+        run: |
+          if [ "${{ matrix.arch }}" = "x64" ]; then DIR=mac; else DIR=mac-arm64; fi
+          codesign --verify --deep --strict --verbose=2 "dist_electron/$DIR/Translate Desktop.app"
+          hdiutil verify dist_electron/*-mac-${{ matrix.arch }}.dmg
+      - name: Verify Windows installer
+        if: matrix.platform == 'win'
+        shell: pwsh
+        run: |
+          7z t -bsp0 (Get-ChildItem dist_electron/*-win-${{ matrix.arch }}-setup.exe).FullName
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify Linux packages
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          if [ "${{ matrix.arch }}" = x64 ]; then DEB_ARCH=amd64; else DEB_ARCH=arm64; fi
+          dpkg-deb --info dist_electron/*-linux-$DEB_ARCH.deb
+          test "$(dpkg-deb --field dist_electron/*-linux-$DEB_ARCH.deb Architecture)" = "$DEB_ARCH"
+          chmod +x dist_electron/*.AppImage
+          (cd "$RUNNER_TEMP" && "$GITHUB_WORKSPACE"/dist_electron/*.AppImage --appimage-extract >/dev/null)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            dist_electron/*.exe
+            dist_electron/*.dmg
+            dist_electron/*.zip
+            dist_electron/*.AppImage
+            dist_electron/*.deb
+          if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/codex/release-')
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: packages-*
+          merge-multiple: true
+          path: release-assets
+      - run: node scripts/release-checksums.cjs
+      - name: Publish release with verified assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          test "$GITHUB_REF_NAME" = "codex/release-$VERSION"
+          if gh release view "$VERSION" --json isDraft --jq .isDraft > "$RUNNER_TEMP/is-draft"; then
+            test "$(cat "$RUNNER_TEMP/is-draft")" = true
+          else
+            gh release create "$VERSION" --target "$GITHUB_SHA" --draft --title "$VERSION" --notes-file CHANGELOG.md
+          fi
+          test "$(gh api "repos/$GH_REPO/git/ref/tags/$VERSION" --jq .object.sha)" = "$GITHUB_SHA"
+          gh release upload "$VERSION" release-assets/* --clobber
+          test "$(gh release view "$VERSION" --json assets --jq '.assets | length')" = 12
+          gh release edit "$VERSION" --draft=false --latest
