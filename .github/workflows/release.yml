@@ -96,8 +96,12 @@ jobs:
           test "$GITHUB_REF_NAME" = "codex/release-$VERSION"
           if gh release view "$VERSION" --json isDraft --jq .isDraft > "$RUNNER_TEMP/is-draft"; then
             test "$(cat "$RUNNER_TEMP/is-draft")" = true
+            gh release edit "$VERSION" --target "$GITHUB_SHA" --notes-file CHANGELOG.md
           else
             gh release create "$VERSION" --target "$GITHUB_SHA" --draft --title "$VERSION" --notes-file CHANGELOG.md
+          fi
+          if ! gh api "repos/$GH_REPO/git/ref/tags/$VERSION" --jq .object.sha > "$RUNNER_TEMP/tag-sha"; then
+            gh api --method POST "repos/$GH_REPO/git/refs" -f "ref=refs/tags/$VERSION" -f "sha=$GITHUB_SHA"
           fi
           test "$(gh api "repos/$GH_REPO/git/ref/tags/$VERSION" --jq .object.sha)" = "$GITHUB_SHA"
           gh release upload "$VERSION" release-assets/* --clobber
