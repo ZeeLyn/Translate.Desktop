@@ -16,7 +16,7 @@
 | Linux | Intel / AMD 64 位 | `linux-x86_64.AppImage` / `linux-amd64.deb` |
 | Linux | ARM64 | `linux-arm64.AppImage` / `.deb` |
 
-例如 `Translate Desktop-3.1.1-mac-arm64.dmg`。DMG 打开后将应用拖入「应用程序」；Windows 运行 EXE 安装；Linux 可安装 DEB，或为 AppImage 添加执行权限后运行。Release 附带 `SHA256SUMS.txt`。
+例如 `Translate-Desktop-3.1.1-mac-arm64.dmg`。DMG 打开后将应用拖入「应用程序」；Windows 运行 EXE 安装；Linux 可安装 DEB，或为 AppImage 添加执行权限后运行。Release 文件名中的空格统一为连字符，并附带 `SHA256SUMS.txt`。
 
 Windows 包未使用发布者证书签名，macOS 包使用 ad-hoc 签名且未经 Apple 公证，首次打开可能需要在系统安全设置中允许。正式分发的证书签名及公证需要提供相应凭据；macOS 配置应移除 `mac.identity: "-"` 并启用 `mac.hardenedRuntime`。当前 Electron 25 已结束维护，后续仍需升级运行时并验证兼容性。
 

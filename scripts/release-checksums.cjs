@@ -3,7 +3,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const { version } = require("../package.json");
-const root = path.resolve(__dirname, "../release-assets");
+const root = path.resolve(process.argv[2] || path.join(__dirname, "../release-assets"));
 const prefix = `Translate Desktop-${version}-`;
 const expected = [
     ...["x64", "ia32", "arm64"].map(arch => `${prefix}win-${arch}-setup.exe`),
@@ -14,7 +14,10 @@ assert.deepStrictEqual(fs.readdirSync(root).sort(), expected, "Release must cont
 const checksums = expected.map(name => {
     const file = path.join(root, name);
     assert(fs.statSync(file).size > 0, `Empty package: ${name}`);
-    return `${crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")}  ${name}`;
+    const digest = crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+    const assetName = name.replaceAll(" ", "-");
+    fs.renameSync(file, path.join(root, assetName));
+    return `${digest}  ${assetName}`;
 });
 fs.writeFileSync(path.join(root, "SHA256SUMS.txt"), checksums.join("\n") + "\n");
 console.log(`Verified ${expected.length} release packages; generated SHA256SUMS.txt`);
