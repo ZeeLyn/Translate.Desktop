@@ -298,6 +298,32 @@ function checkLatestTranslation() {
     assert(!state.loading);
 }
 
+async function checkMacBuildConfig() {
+    const builderPath = require.resolve("electron-builder");
+    require(builderPath);
+    const originalBuilder = require.cache[builderPath].exports;
+    const commands = {};
+    let options;
+    require.cache[builderPath].exports = { build(value) { options = value; return Promise.resolve(); } };
+    try {
+        require("vue-cli-plugin-electron-builder")({
+            hasPlugin: () => false,
+            chainWebpack() {},
+            registerCommand(name, description, handler) { commands[name] = handler; },
+        }, require("../vue.config.js"));
+        const script = require("../package.json").scripts["electron:build:mac:arm64"];
+        const args = script.split(" -- ")[1].trim().split(/\s+/);
+        await commands["electron:build"]({ skipBundle: true }, args);
+        assert.strictEqual(options.config.directories.app, "dist_electron/bundled", "CLI signing options must not replace the bundled app configuration");
+        assert.strictEqual(options.config.productName, "Translate Desktop");
+        assert.strictEqual(options.config.mac.identity, "-");
+        assert.strictEqual(options.config.mac.hardenedRuntime, false);
+        assert(options.arm64);
+    } finally {
+        require.cache[builderPath].exports = originalBuilder;
+    }
+}
+
 (async () => {
     await checkLifecycle();
     await checkMirrors();
@@ -306,7 +332,8 @@ function checkLatestTranslation() {
     await checkGoogle();
     checkSavedProxy();
     checkLatestTranslation();
-    console.log("Passed: macOS lifecycle, mirror checks, Baidu HTTPS, proxy routing, Google caching/rate limits, stale responses");
+    await checkMacBuildConfig();
+    console.log("Passed: macOS lifecycle, mirror checks, Baidu HTTPS, proxy routing, Google caching/rate limits, stale responses, macOS build config");
 })().catch(error => {
     console.error(error);
     process.exitCode = 1;

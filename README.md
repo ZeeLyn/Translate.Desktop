@@ -31,7 +31,7 @@ npm run electron:build:mac:arm64
 
 流程使用 macOS arm64 构建机，运行 lint 和回归检查，并验证应用架构、代码签名及 DMG。它只保存构建产物，不发布 Release。
 
-正式公开分发时，需要提供 Developer ID 证书和 Apple 公证凭据，并移除构建命令中的 `--config.mac.identity=-` 和 `--config.mac.hardenedRuntime=false`，改用证书签名及 Hardened Runtime。当前 Electron 25 已结束维护，正式发布前应另行升级并做兼容性验证。
+正式公开分发时，需要提供 Developer ID 证书和 Apple 公证凭据，并移除 `vue.config.js` 中的 `mac.identity: "-"`，将 `mac.hardenedRuntime` 改为 `true`，改用证书签名及 Hardened Runtime。当前 Electron 25 已结束维护，正式发布前应另行升级并做兼容性验证。
 
 ## 代理与 Google 访问频率
 

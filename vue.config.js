@@ -16,6 +16,8 @@ module.exports = {
                 },
                 mac: {
                     icon: "./public/logo@512.png",
+                    identity: "-",
+                    hardenedRuntime: false,
                     category: "public.app-category.productivity",
                     artifactName: "${productName}-${version}-mac-${arch}.${ext}",
                     target: [

@@ -8,7 +8,7 @@
         "lint": "vue-cli-service lint",
         "test": "node scripts/check.cjs",
         "electron:build": "node --openssl-legacy-provider node_modules/@vue/cli-service/bin/vue-cli-service.js electron:build",
-        "electron:build:mac:arm64": "npm run electron:build -- --mac --arm64 --publish never --config.mac.identity=- --config.mac.hardenedRuntime=false",
+        "electron:build:mac:arm64": "npm run electron:build -- --mac --arm64 --publish never",
         "electron:serve": "node --openssl-legacy-provider node_modules/@vue/cli-service/bin/vue-cli-service.js electron:serve"
     },
     "main": "background.js",
